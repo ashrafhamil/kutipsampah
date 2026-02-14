@@ -38,6 +38,30 @@ export default function UnifiedHeader({ currentRole, onRoleChange, activeTab, on
 
           {/* Right side - Tabs or spacer for balance */}
           <div className="flex-1 flex justify-end">
+            {currentRole === USER_ROLES.PEMBUANG && (
+              <div className="flex bg-gray-100 rounded-xl p-1 gap-1 flex-shrink-0">
+                <button
+                  onClick={() => onTabChange('request')}
+                  className={`flex-1 py-2 px-4 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
+                    activeTab === 'request'
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  New Request
+                </button>
+                <button
+                  onClick={() => onTabChange('myRequests')}
+                  className={`flex-1 py-2 px-4 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
+                    activeTab === 'myRequests'
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  My Requests
+                </button>
+              </div>
+            )}
             {currentRole === USER_ROLES.PENGUTIP && (
               <div className="flex bg-gray-100 rounded-xl p-1 gap-1 flex-shrink-0">
                 <button
