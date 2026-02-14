@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, MapPin, Clock, Package, DollarSign, CheckCircle } from 'lucide-react'
+import { X, MapPin, Clock, Package, DollarSign, CheckCircle, User, Phone } from 'lucide-react'
 import { acceptJob, completeJob } from '@/services/jobService'
 import { JOB_STATUS } from '@/constants/jobConstants'
 import { doc, onSnapshot } from 'firebase/firestore'
@@ -86,6 +86,25 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
         </div>
 
         <div className="px-6 py-4 space-y-4">
+          {(currentJob.name || currentJob.phoneNumber) && (
+            <div className="bg-gray-50 rounded-xl p-4">
+              {currentJob.name && (
+                <div className="flex items-center gap-2 mb-2">
+                  <User className="w-5 h-5 text-primary" />
+                  <span className="font-semibold text-gray-700">Name:</span>
+                  <span className="text-gray-800">{currentJob.name}</span>
+                </div>
+              )}
+              {currentJob.phoneNumber && (
+                <div className="flex items-center gap-2">
+                  <Phone className="w-5 h-5 text-primary" />
+                  <span className="font-semibold text-gray-700">Phone:</span>
+                  <span className="text-gray-800">{currentJob.phoneNumber}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="bg-gray-50 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <Package className="w-5 h-5 text-primary" />

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Clock, MapPin, Package, DollarSign, X } from 'lucide-react'
+import { Clock, MapPin, Package, DollarSign, X, User, Phone } from 'lucide-react'
 import { createJob } from '@/services/jobService'
 import { PRICE_PER_BAG } from '@/constants/jobConstants'
 
@@ -19,6 +19,8 @@ const getDefaultPickupTime = () => {
 
 export default function PembuangForm({ userId, onJobCreated, onClose }) {
   const [formData, setFormData] = useState({
+    name: 'Jebon',
+    phoneNumber: '0123456789',
     pickupTime: getDefaultPickupTime(),
     address: '',
     bagCount: 1,
@@ -127,14 +129,18 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
 
       const jobId = await createJob({
         requesterId: userId,
+        name: formData.name,
+        phoneNumber: formData.phoneNumber,
         address: addressToSubmit,
         gps: selectedGps,
         pickupTime: formData.pickupTime,
         bagCount: formData.bagCount,
       })
 
-      // Reset form
+      // Reset form (but keep default name and phoneNumber)
       setFormData({
+        name: 'Jebon',
+        phoneNumber: '0123456789',
         pickupTime: getDefaultPickupTime(),
         address: '',
         bagCount: 1,
@@ -178,6 +184,38 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                <User className="w-4 h-4" />
+                Name
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+                className="w-full h-12 px-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Name"
+              />
+            </div>
+
+            <div className="flex-1">
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                <Phone className="w-4 h-4" />
+                Phone
+              </label>
+              <input
+                type="tel"
+                value={formData.phoneNumber}
+                onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                required
+                className="w-full h-12 px-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Phone"
+              />
+            </div>
+          </div>
+
           <div>
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
               <Clock className="w-4 h-4" />
@@ -199,8 +237,8 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
             </label>
             
             {/* Location Selection Radio Buttons */}
-            <div className="space-y-2 mb-4">
-              <label className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
+            <div className="flex gap-2 mb-4">
+              <label className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all flex-1 ${
                 currentLocationGps.lat 
                   ? 'cursor-pointer hover:bg-gray-50' 
                   : 'cursor-not-allowed opacity-50'
@@ -237,13 +275,10 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                   disabled={!currentLocationGps.lat}
                   className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
                 />
-                <span className="text-sm text-gray-700 font-medium">Use my current location</span>
-                {!currentLocationGps.lat && (
-                  <span className="text-xs text-amber-600 ml-auto">(Location not available)</span>
-                )}
+                <span className="text-sm text-gray-700 font-medium">Current location</span>
               </label>
               
-              <label className="flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all hover:bg-gray-50">
+              <label className="flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all hover:bg-gray-50 flex-1">
                 <input
                   type="radio"
                   name="locationMode"
@@ -252,9 +287,12 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                   onChange={(e) => setLocationMode('different')}
                   className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
                 />
-                <span className="text-sm text-gray-700 font-medium">Use different location</span>
+                <span className="text-sm text-gray-700 font-medium">Different location</span>
               </label>
             </div>
+            {!currentLocationGps.lat && locationMode === 'current' && (
+              <p className="text-xs text-amber-600 mb-1">(Location not available)</p>
+            )}
             
             {/* Address Field - Only shown when "different location" is selected */}
             {locationMode === 'different' && (
@@ -351,9 +389,17 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
               >
                 −
               </button>
-              <span className="text-2xl font-bold text-gray-800 w-12 text-center">
-                {formData.bagCount}
-              </span>
+              <input
+                type="number"
+                min="1"
+                value={formData.bagCount}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value) || 1
+                  setFormData({ ...formData, bagCount: Math.max(1, value) })
+                }}
+                required
+                className="w-20 h-10 px-3 text-center rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary font-bold text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, bagCount: formData.bagCount + 1 })}
