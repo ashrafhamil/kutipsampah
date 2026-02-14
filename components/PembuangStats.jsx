@@ -20,7 +20,10 @@ export default function PembuangStats({ userId }) {
     const unsubscribe = subscribeToRequesterJobs(userId, (jobs) => {
       const totalJobs = jobs.length
       const completed = jobs.filter(job => job.status === JOB_STATUS.DONE).length
-      const waitingForCollection = jobs.filter(job => job.status === JOB_STATUS.PENDING).length
+      // Waiting includes both PENDING and COLLECTING (in progress)
+      const waitingForCollection = jobs.filter(job => 
+        job.status === JOB_STATUS.PENDING || job.status === JOB_STATUS.COLLECTING
+      ).length
       
       setStats({
         totalJobs,
