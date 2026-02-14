@@ -1,0 +1,133 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { MapPin, Clock, Package, DollarSign, CheckCircle } from 'lucide-react'
+import { subscribeToCompletedJobs } from '@/services/jobService'
+
+export default function CompletedJobsList({ userId, onJobClick }) {
+  const [jobs, setJobs] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!userId) return
+
+    // Subscribe to completed jobs
+    const unsubscribe = subscribeToCompletedJobs(userId, (updatedJobs) => {
+      setJobs(updatedJobs)
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
+  }, [userId])
+
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'N/A'
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
+    return date.toLocaleDateString('ms-MY', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+
+  if (loading) {
+    return (
+      <div className="h-full w-full flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">Memuatkan...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (jobs.length === 0) {
+    return (
+      <div className="h-full w-full flex items-center justify-center bg-gray-50 p-4">
+        <div className="text-center max-w-sm">
+          <CheckCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-gray-700 mb-2">Tiada Job Selesai</h3>
+          <p className="text-sm text-gray-500">
+            Anda belum menyelesaikan sebarang job. Selesaikan job dari tab "My Jobs" untuk melihatnya di sini.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="h-full w-full overflow-y-auto bg-gray-50 p-4">
+      <div className="max-w-md mx-auto space-y-3">
+        {jobs.map((job) => (
+          <div
+            key={job.id}
+            onClick={() => onJobClick(job)}
+            className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]"
+          >
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
+                  {job.address && (
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(job.address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-sm font-semibold text-gray-800 line-clamp-2 hover:text-primary hover:underline"
+                    >
+                      {job.address}
+                    </a>
+                  )}
+                  {job.gps?.lat && job.gps?.lng && (
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${job.gps.lat},${job.gps.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs text-primary hover:text-primary-dark hover:underline ml-2"
+                    >
+                      📍
+                    </a>
+                  )}
+                </div>
+                <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    <span>{job.pickupTime || 'Tidak dinyatakan'}</span>
+                  </div>
+                  <span className="text-gray-400">•</span>
+                  <span>{formatDate(job.createdAt)}</span>
+                </div>
+              </div>
+              <div className="ml-2 flex-shrink-0">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                  Selesai
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <Package className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold text-gray-700">
+                    {job.bagCount} beg
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <DollarSign className="w-4 h-4 text-primary" />
+                <span className="text-lg font-bold text-primary">
+                  RM {job.totalPrice}
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

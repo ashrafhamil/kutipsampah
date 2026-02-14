@@ -194,11 +194,23 @@ export default function PengutipMap({ onMarkerClick }) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         {jobs.map((job) => {
-          if (!job.gps?.lat || !job.gps?.lng) return null
+          // Validate GPS coordinates - check for null/undefined (not falsy, to allow 0 coordinates)
+          if (job.gps?.lat == null || job.gps?.lng == null) return null
+          
+          // Explicitly convert to numbers to ensure proper type
+          const lat = Number(job.gps.lat)
+          const lng = Number(job.gps.lng)
+          
+          // Validate that conversion resulted in valid numbers
+          if (isNaN(lat) || isNaN(lng)) {
+            console.warn(`Invalid GPS coordinates for job ${job.id}:`, job.gps)
+            return null
+          }
+          
           return (
             <Marker
               key={job.id}
-              position={[job.gps.lat, job.gps.lng]}
+              position={[lat, lng]}
               eventHandlers={{
                 click: () => onMarkerClick(job),
               }}

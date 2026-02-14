@@ -16,6 +16,24 @@ import { db } from '@/lib/firebase'
 import { JOB_STATUS, PRICE_PER_BAG } from '@/constants/jobConstants'
 
 /**
+ * Normalizes GPS coordinates to numbers (SRP: Data Normalization)
+ * Ensures GPS coordinates are always numbers, not strings
+ */
+const normalizeJobData = (jobData) => {
+  const normalized = { ...jobData }
+  
+  // Normalize GPS coordinates if they exist
+  if (normalized.gps && typeof normalized.gps === 'object') {
+    normalized.gps = {
+      lat: normalized.gps.lat != null ? Number(normalized.gps.lat) : null,
+      lng: normalized.gps.lng != null ? Number(normalized.gps.lng) : null,
+    }
+  }
+  
+  return normalized
+}
+
+/**
  * Creates a new job request (SRP: Job Creation)
  */
 export const createJob = async (jobData) => {
@@ -44,7 +62,7 @@ export const getPendingJobs = async () => {
       where('status', '==', JOB_STATUS.PENDING)
     )
     const querySnapshot = await getDocs(q)
-    return querySnapshot.docs.map((doc) => ({
+    return querySnapshot.docs.map((doc) => normalizeJobData({
       id: doc.id,
       ...doc.data(),
     }))
@@ -63,7 +81,7 @@ export const subscribeToPendingJobs = (callback) => {
     where('status', '==', JOB_STATUS.PENDING)
   )
   return onSnapshot(q, (snapshot) => {
-    const jobs = snapshot.docs.map((doc) => ({
+    const jobs = snapshot.docs.map((doc) => normalizeJobData({
       id: doc.id,
       ...doc.data(),
     }))
@@ -81,10 +99,35 @@ export const subscribeToMyJobs = (collectorId, callback) => {
     where('collectorId', '==', collectorId)
   )
   return onSnapshot(q, (snapshot) => {
-    const jobs = snapshot.docs.map((doc) => ({
+    const jobs = snapshot.docs.map((doc) => normalizeJobData({
       id: doc.id,
       ...doc.data(),
     }))
+    callback(jobs)
+  })
+}
+
+/**
+ * Subscribes to collector's completed jobs in real-time (SRP: Completed Jobs Updates)
+ */
+export const subscribeToCompletedJobs = (collectorId, callback) => {
+  const q = query(
+    collection(db, 'jobs'),
+    where('status', '==', JOB_STATUS.DONE),
+    where('collectorId', '==', collectorId)
+  )
+  return onSnapshot(q, (snapshot) => {
+    const jobs = snapshot.docs.map((doc) => normalizeJobData({
+      id: doc.id,
+      ...doc.data(),
+    }))
+    // Sort by createdAt descending (newest first)
+    jobs.sort((a, b) => {
+      if (!a.createdAt || !b.createdAt) return 0
+      const aTime = a.createdAt.toMillis ? a.createdAt.toMillis() : a.createdAt
+      const bTime = b.createdAt.toMillis ? b.createdAt.toMillis() : b.createdAt
+      return bTime - aTime
+    })
     callback(jobs)
   })
 }

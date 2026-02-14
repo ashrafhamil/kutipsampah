@@ -6,7 +6,9 @@ import RoleSwitcher from '@/components/RoleSwitcher'
 import PembuangForm from '@/components/PembuangForm'
 import PengutipMap from '@/components/PengutipMap'
 import MyJobsList from '@/components/MyJobsList'
+import CompletedJobsList from '@/components/CompletedJobsList'
 import PengutipTabs from '@/components/PengutipTabs'
+import PengutipStats from '@/components/PengutipStats'
 import JobDrawer from '@/components/JobDrawer'
 import { USER_ROLES } from '@/constants/jobConstants'
 
@@ -70,8 +72,17 @@ function KampungSapuApp() {
           <div className="h-[calc(100vh-146px)] relative">
             {activeTab === 'pending' ? (
               <PengutipMap onMarkerClick={handleMarkerClick} />
-            ) : (
+            ) : activeTab === 'myJobs' ? (
               <MyJobsList userId={user.uid} onJobClick={handleJobClick} />
+            ) : (
+              <div className="flex flex-col h-full">
+                <div className="flex-shrink-0">
+                  <PengutipStats userId={user.uid} />
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <CompletedJobsList userId={user.uid} onJobClick={handleJobClick} />
+                </div>
+              </div>
             )}
             <JobDrawer
               job={selectedJob}

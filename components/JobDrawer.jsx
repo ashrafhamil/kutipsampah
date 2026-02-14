@@ -35,6 +35,7 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
   if (!isOpen || !currentJob) return null
 
   const isAccepted = currentJob.status === JOB_STATUS.COLLECTING && currentJob.collectorId === userId
+  const isCompleted = currentJob.status === JOB_STATUS.DONE && currentJob.collectorId === userId
   const canAccept = currentJob.status === JOB_STATUS.PENDING && userRole === 'PENGUTIP'
   const canComplete = isAccepted && currentJob.status === JOB_STATUS.COLLECTING
   // Show "Go to My Jobs" button if job was just accepted from pending tab
@@ -134,52 +135,61 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
             </div>
           </div>
 
-          {isAccepted && (
+          {isAccepted && !isCompleted && (
             <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-green-600" />
               <span className="text-green-700 font-semibold">Anda telah menerima job ini</span>
             </div>
           )}
 
-          <div className="space-y-3 pt-2">
-            {canAccept && (
-              <button
-                onClick={handleAccept}
-                disabled={isProcessing}
-                className="w-full h-12 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isProcessing ? 'Memproses...' : 'TERIMA JOB'}
-              </button>
-            )}
+          {isCompleted && (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              <span className="text-green-700 font-semibold">Job ini telah selesai</span>
+            </div>
+          )}
 
-            {showGoToMyJobs && (
-              <button
-                onClick={onSwitchToMyJobs}
-                className="w-full h-12 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-primary-dark transition-colors"
-              >
-                Lihat My Jobs
-              </button>
-            )}
-
-            {canComplete && !showGoToMyJobs && (
-              <div className="space-y-3">
+          {!isCompleted && (
+            <div className="space-y-3 pt-2">
+              {canAccept && (
                 <button
-                  onClick={() => handleComplete(true)}
+                  onClick={handleAccept}
                   disabled={isProcessing}
                   className="w-full h-12 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isProcessing ? 'Memproses...' : 'Success'}
+                  {isProcessing ? 'Memproses...' : 'TERIMA JOB'}
                 </button>
+              )}
+
+              {showGoToMyJobs && (
                 <button
-                  onClick={() => handleComplete(false)}
-                  disabled={isProcessing}
-                  className="w-full h-12 bg-red-500 text-white rounded-xl font-bold shadow-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={onSwitchToMyJobs}
+                  className="w-full h-12 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-primary-dark transition-colors"
                 >
-                  {isProcessing ? 'Memproses...' : 'Cancel'}
+                  Lihat My Jobs
                 </button>
-              </div>
-            )}
-          </div>
+              )}
+
+              {canComplete && !showGoToMyJobs && (
+                <div className="space-y-3">
+                  <button
+                    onClick={() => handleComplete(true)}
+                    disabled={isProcessing}
+                    className="w-full h-12 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isProcessing ? 'Memproses...' : 'Success'}
+                  </button>
+                  <button
+                    onClick={() => handleComplete(false)}
+                    disabled={isProcessing}
+                    className="w-full h-12 bg-red-500 text-white rounded-xl font-bold shadow-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isProcessing ? 'Memproses...' : 'Cancel'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
