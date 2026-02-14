@@ -5,13 +5,16 @@ import { Clock, MapPin, Package, DollarSign } from 'lucide-react'
 import { createJob } from '@/services/jobService'
 import { PRICE_PER_BAG } from '@/constants/jobConstants'
 
-// Helper function to get current time + 1 hour in HH:MM format
+// Helper function to get current date and time + 1 hour in datetime-local format (YYYY-MM-DDTHH:MM)
 const getDefaultPickupTime = () => {
   const now = new Date()
   const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000) // Add 1 hour
+  const year = oneHourLater.getFullYear()
+  const month = String(oneHourLater.getMonth() + 1).padStart(2, '0') // Month is 0-indexed
+  const date = String(oneHourLater.getDate()).padStart(2, '0')
   const hours = String(oneHourLater.getHours()).padStart(2, '0')
   const minutes = String(oneHourLater.getMinutes()).padStart(2, '0')
-  return `${hours}:${minutes}`
+  return `${year}-${month}-${date}T${hours}:${minutes}`
 }
 
 export default function PembuangForm({ userId, onJobCreated }) {
@@ -161,7 +164,7 @@ export default function PembuangForm({ userId, onJobCreated }) {
               Masa Kutip
             </label>
             <input
-              type="time"
+              type="datetime-local"
               value={formData.pickupTime}
               onChange={(e) => setFormData({ ...formData, pickupTime: e.target.value })}
               required
