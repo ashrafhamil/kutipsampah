@@ -2,23 +2,21 @@
 
 import { useEffect, useState } from 'react'
 import { MapPin, Clock, Package, DollarSign, CheckCircle } from 'lucide-react'
-import { subscribeToCompletedJobs } from '@/services/jobService'
+import { subscribeToAllCompletedJobs } from '@/services/jobService'
 
 export default function CompletedJobsList({ userId, onJobClick }) {
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!userId) return
-
-    // Subscribe to completed jobs
-    const unsubscribe = subscribeToCompletedJobs(userId, (updatedJobs) => {
+    // Subscribe to ALL completed jobs (MVP: no user filtering)
+    const unsubscribe = subscribeToAllCompletedJobs((updatedJobs) => {
       setJobs(updatedJobs)
       setLoading(false)
     })
 
     return () => unsubscribe()
-  }, [userId])
+  }, [])
 
   const formatDate = (timestamp) => {
     if (!timestamp) return 'N/A'

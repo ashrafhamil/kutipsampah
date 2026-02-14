@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { CheckCircle, DollarSign } from 'lucide-react'
-import { subscribeToCompletedJobs } from '@/services/jobService'
+import { subscribeToAllCompletedJobs } from '@/services/jobService'
 
 export default function PengutipStats({ userId }) {
   const [stats, setStats] = useState({
@@ -12,10 +12,8 @@ export default function PengutipStats({ userId }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!userId) return
-
-    // Subscribe to completed jobs for real-time stats
-    const unsubscribe = subscribeToCompletedJobs(userId, (jobs) => {
+    // Subscribe to ALL completed jobs (MVP: no user filtering)
+    const unsubscribe = subscribeToAllCompletedJobs((jobs) => {
       const totalEarned = jobs.reduce((sum, job) => sum + (job.totalPrice || 0), 0)
       setStats({
         totalCompleted: jobs.length,
@@ -25,7 +23,7 @@ export default function PengutipStats({ userId }) {
     })
 
     return () => unsubscribe()
-  }, [userId])
+  }, [])
 
   if (loading) {
     return (

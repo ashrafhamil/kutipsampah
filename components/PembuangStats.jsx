@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Package, CheckCircle, Clock } from 'lucide-react'
-import { subscribeToRequesterJobs } from '@/services/jobService'
+import { subscribeToAllJobs } from '@/services/jobService'
 import { JOB_STATUS } from '@/constants/jobConstants'
 
 export default function PembuangStats({ userId }) {
@@ -14,10 +14,8 @@ export default function PembuangStats({ userId }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!userId) return
-
-    // Subscribe to all jobs created by this requester
-    const unsubscribe = subscribeToRequesterJobs(userId, (jobs) => {
+    // Subscribe to ALL jobs (MVP: no user filtering)
+    const unsubscribe = subscribeToAllJobs((jobs) => {
       const totalJobs = jobs.length
       const completed = jobs.filter(job => job.status === JOB_STATUS.DONE).length
       // Waiting includes both PENDING and COLLECTING (in progress)
@@ -34,7 +32,7 @@ export default function PembuangStats({ userId }) {
     })
 
     return () => unsubscribe()
-  }, [userId])
+  }, [])
 
   if (loading) {
     return (

@@ -133,6 +133,30 @@ export const subscribeToCompletedJobs = (collectorId, callback) => {
 }
 
 /**
+ * Subscribes to ALL completed jobs in real-time (MVP: No user filtering)
+ */
+export const subscribeToAllCompletedJobs = (callback) => {
+  const q = query(
+    collection(db, 'jobs'),
+    where('status', '==', JOB_STATUS.DONE)
+  )
+  return onSnapshot(q, (snapshot) => {
+    const jobs = snapshot.docs.map((doc) => normalizeJobData({
+      id: doc.id,
+      ...doc.data(),
+    }))
+    // Sort by createdAt descending (newest first)
+    jobs.sort((a, b) => {
+      if (!a.createdAt || !b.createdAt) return 0
+      const aTime = a.createdAt.toMillis ? a.createdAt.toMillis() : a.createdAt
+      const bTime = b.createdAt.toMillis ? b.createdAt.toMillis() : b.createdAt
+      return bTime - aTime
+    })
+    callback(jobs)
+  })
+}
+
+/**
  * Subscribes to all jobs created by a requester in real-time (SRP: Requester Jobs Updates)
  */
 export const subscribeToRequesterJobs = (requesterId, callback) => {
@@ -155,6 +179,23 @@ export const subscribeToRequesterJobs = (requesterId, callback) => {
     callback(jobs)
   }, (error) => {
     console.error('Error in subscribeToRequesterJobs:', error)
+    callback([]) // Return empty array on error to prevent UI crashes
+  })
+}
+
+/**
+ * Subscribes to ALL jobs in real-time (MVP: No user filtering)
+ */
+export const subscribeToAllJobs = (callback) => {
+  const q = query(collection(db, 'jobs'))
+  return onSnapshot(q, (snapshot) => {
+    const jobs = snapshot.docs.map((doc) => normalizeJobData({
+      id: doc.id,
+      ...doc.data(),
+    }))
+    callback(jobs)
+  }, (error) => {
+    console.error('Error in subscribeToAllJobs:', error)
     callback([]) // Return empty array on error to prevent UI crashes
   })
 }
