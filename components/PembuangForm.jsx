@@ -401,12 +401,10 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                         className="text-xs text-primary underline hover:text-primary-dark font-semibold"
                       >
                         {currentLocationGps.lat.toFixed(4)}, {currentLocationGps.lng.toFixed(4)}
-                        {currentLocationCity && `, ${currentLocationCity}`}
-                        {!currentLocationCity && currentLocationState && `, ${currentLocationState}`}
+                        {isReverseGeocoding && ', Loading...'}
+                        {!isReverseGeocoding && currentLocationCity && `, ${currentLocationCity}`}
+                        {!isReverseGeocoding && !currentLocationCity && currentLocationState && `, ${currentLocationState}`}
                       </a>
-                      {isReverseGeocoding && (
-                        <p className="text-xs text-gray-500 mt-1">Loading location name...</p>
-                      )}
                     </div>
                     <span className="text-xs bg-primary text-white px-2 py-1 rounded-full font-semibold">
                       Active
