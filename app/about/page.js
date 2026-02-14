@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export const metadata = {
   title: 'Story | Kome Buang Kita Kutip',
-  description: 'The story behind Kome Buang Kita Kutip - Community Food Waste Utility',
+  description: 'The story behind Kome Buang Kita Kutip - Community Waste Utility',
 }
 
 export default function AboutPage() {
@@ -18,7 +18,7 @@ export default function AboutPage() {
       <main className="max-w-2xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">Story</h1>
         <p className="text-gray-600 mb-4">
-          Kome Buang Kita Kutip is a community food waste utility that connects people who want to dispose of waste (Pembuang Sampah) with collectors (Pengutip Sampah).
+          Kome Buang Kita Kutip is a community waste utility that connects people who want to dispose of waste (Pembuang Sampah) with collectors (Pengutip Sampah).
         </p>
         <p className="text-gray-600 mb-4">
           Request a pickup, set your location and time, and a collector can accept and complete the job. Simple and local.

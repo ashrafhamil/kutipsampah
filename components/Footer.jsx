@@ -8,7 +8,7 @@ export default function Footer() {
     <footer className="mt-auto border-t border-gray-200 bg-white py-4 w-full">
       <div className="w-full px-4 text-center text-sm text-gray-500">
         <p className="whitespace-nowrap overflow-x-auto flex items-center justify-center gap-2 flex-wrap">
-          Kome Buang Kita Kutip – Community Food Waste Utility
+          Kome Buang Kita Kutip – Community Waste Utility
           {' · '}
           <Link href="/about" className="text-primary hover:underline">
             Story
