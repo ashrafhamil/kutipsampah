@@ -4,7 +4,7 @@ export const JOB_STATUS = {
   DONE: 'DONE',
 }
 
-export const PRICE_PER_BAG = 1
+export const PRICE_PER_BAG = 2
 
 export const USER_ROLES = {
   PEMBUANG: 'PEMBUANG',
