@@ -172,7 +172,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
           <div>
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
               <Clock className="w-4 h-4" />
-              Masa Kutip
+              Pickup Time
             </label>
             <input
               type="datetime-local"
@@ -186,7 +186,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
           <div>
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
               <MapPin className="w-4 h-4" />
-              Lokasi Kutip
+              Pickup Location
             </label>
             
             {/* Location Selection Radio Buttons */}
@@ -200,7 +200,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                   onChange={(e) => setLocationMode('current')}
                   className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
                 />
-                <span className="text-sm text-gray-700 font-medium">Gunakan lokasi semasa saya</span>
+                <span className="text-sm text-gray-700 font-medium">Use my current location</span>
               </label>
               
               <label className="flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all hover:bg-gray-50">
@@ -212,7 +212,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                   onChange={(e) => setLocationMode('different')}
                   className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
                 />
-                <span className="text-sm text-gray-700 font-medium">Gunakan lokasi lain</span>
+                <span className="text-sm text-gray-700 font-medium">Use different location</span>
               </label>
             </div>
             
@@ -301,7 +301,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
           <div>
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
               <Package className="w-4 h-4" />
-              Bilangan Beg
+              Number of Bags
             </label>
             <div className="flex items-center gap-4">
               <button
@@ -327,7 +327,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
           <div className="bg-gray-50 rounded-xl p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-primary" />
-              <span className="font-semibold text-gray-700">Total Harga:</span>
+              <span className="font-semibold text-gray-700">Total:</span>
             </div>
             <span className="text-2xl font-bold text-primary">RM {totalPrice}</span>
           </div>
@@ -337,7 +337,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
             disabled={isSubmitting}
             className="w-full h-12 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Menghantar...' : 'Bayar & Hantar'}
+            {isSubmitting ? 'Sending...' : 'Pay & Submit'}
           </button>
         </form>
       </div>

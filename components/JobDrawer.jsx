@@ -89,7 +89,7 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
           <div className="bg-gray-50 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <Package className="w-5 h-5 text-primary" />
-              <span className="font-semibold text-gray-700">Bilangan Beg:</span>
+              <span className="font-semibold text-gray-700">Number of Bags:</span>
               <span className="font-bold text-primary text-lg">{currentJob.bagCount}</span>
             </div>
             <div className="flex items-center gap-2 mb-2">

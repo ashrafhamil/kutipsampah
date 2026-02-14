@@ -42,7 +42,7 @@ function KampungSapuApp() {
   if (!user) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p>Memuatkan...</p>
+        <p>Loading...</p>
       </div>
     )
   }
@@ -59,14 +59,14 @@ function KampungSapuApp() {
                 Selamat Datang, Pembuang Sampah!
               </h1>
               <p className="text-gray-600 text-sm mb-4">
-                Isi borang di bawah untuk meminta kutipan sampah makanan.
+                Isi borang di bawah untuk meminta kutipan sampah.
               </p>
               {!showForm && (
                 <button
                   onClick={() => setShowForm(true)}
                   className="w-full h-12 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-primary-dark transition-colors"
                 >
-                  Buat Job Baru
+                  Request Pengutip Sampah
                 </button>
               )}
             </div>
