@@ -83,9 +83,11 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
           setLocationError(null)
         },
         (error) => {
-          setLocationError('Unable to get location. Please enter address and geocode it.')
-          setLocationMode('different')
+          // Only set error if user actually needs current location
+          // Otherwise, silently fall back to different location mode
           console.error('Geolocation error:', error)
+          setLocationMode('different')
+          // Don't show error message - user can still use address geocoding
         }
       )
     } else {
@@ -153,8 +155,15 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
   const totalPrice = formData.bagCount * PRICE_PER_BAG
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl border-t border-gray-200 z-40 max-w-md mx-auto max-h-[85vh] overflow-y-auto">
-      <div className="px-6 pt-4 pb-6">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end animate-fadeIn"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-t-3xl w-full max-w-md mx-auto max-h-[85vh] overflow-y-auto shadow-2xl animate-slideUp"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-6 pt-4 pb-6">
         <div className="relative mb-4">
           <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto"></div>
           {onClose && (
@@ -191,16 +200,47 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
             
             {/* Location Selection Radio Buttons */}
             <div className="space-y-2 mb-4">
-              <label className="flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all hover:bg-gray-50">
+              <label className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
+                currentLocationGps.lat 
+                  ? 'cursor-pointer hover:bg-gray-50' 
+                  : 'cursor-not-allowed opacity-50'
+              }`}>
                 <input
                   type="radio"
                   name="locationMode"
                   value="current"
                   checked={locationMode === 'current'}
-                  onChange={(e) => setLocationMode('current')}
+                  onChange={(e) => {
+                    if (currentLocationGps.lat) {
+                      setLocationMode('current')
+                    } else {
+                      // Try to get location again when user selects it
+                      if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                          (position) => {
+                            setCurrentLocationGps({
+                              lat: position.coords.latitude,
+                              lng: position.coords.longitude,
+                            })
+                            setLocationMode('current')
+                            setLocationError(null)
+                          },
+                          (error) => {
+                            console.error('Geolocation error:', error)
+                            alert('Tidak dapat mendapatkan lokasi. Sila benarkan akses lokasi dalam tetapan pelayar atau gunakan lokasi lain.')
+                            setLocationMode('different')
+                          }
+                        )
+                      }
+                    }
+                  }}
+                  disabled={!currentLocationGps.lat}
                   className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
                 />
                 <span className="text-sm text-gray-700 font-medium">Use my current location</span>
+                {!currentLocationGps.lat && (
+                  <span className="text-xs text-amber-600 ml-auto">(Lokasi tidak tersedia)</span>
+                )}
               </label>
               
               <label className="flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all hover:bg-gray-50">
@@ -246,8 +286,8 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
               </>
             )}
             
-            {locationError && (
-              <p className="text-xs text-red-500 mt-1">{locationError}</p>
+            {locationError && locationMode === 'current' && (
+              <p className="text-xs text-amber-600 mt-1">{locationError}</p>
             )}
             
             {/* GPS Display Section */}
@@ -340,6 +380,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
             {isSubmitting ? 'Sending...' : 'Pay & Submit'}
           </button>
         </form>
+        </div>
       </div>
     </div>
   )
