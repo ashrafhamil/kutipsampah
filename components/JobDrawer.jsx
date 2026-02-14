@@ -10,6 +10,7 @@ import { db } from '@/lib/firebase'
 export default function JobDrawer({ job, isOpen, onClose, userId, userRole, activeTab, onSwitchToMyJobs }) {
   const [isProcessing, setIsProcessing] = useState(false)
   const [currentJob, setCurrentJob] = useState(job)
+  const [timeRemaining, setTimeRemaining] = useState(null)
 
   // Subscribe to real-time job updates
   useEffect(() => {
@@ -31,6 +32,97 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
       setCurrentJob(job)
     }
   }, [job])
+
+  // Calculate and update countdown timer
+  useEffect(() => {
+    if (!currentJob?.pickupTime) {
+      setTimeRemaining(null)
+      return
+    }
+
+    const calculateTimeRemaining = () => {
+      try {
+        if (!currentJob.pickupTime || typeof currentJob.pickupTime !== 'string') {
+          setTimeRemaining(null)
+          return
+        }
+
+        // Parse pickupTime - handle multiple formats
+        let pickupTimeString = currentJob.pickupTime.trim()
+        let pickupDate
+        
+        // Check if it's just time format (HH:MM) - need to combine with today's date
+        if (/^\d{1,2}:\d{2}$/.test(pickupTimeString)) {
+          // Format is "HH:MM" - combine with today's date
+          const today = new Date()
+          const [hours, minutes] = pickupTimeString.split(':')
+          pickupDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), parseInt(hours), parseInt(minutes))
+          
+          // If the time has already passed today, assume it's for tomorrow
+          if (pickupDate.getTime() < Date.now()) {
+            pickupDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, parseInt(hours), parseInt(minutes))
+          }
+        } else {
+          // Try parsing as full datetime format (YYYY-MM-DDTHH:MM)
+          pickupDate = new Date(pickupTimeString)
+        }
+        
+        // Check if date is valid
+        if (isNaN(pickupDate.getTime())) {
+          console.warn('Invalid pickupTime:', currentJob.pickupTime)
+          setTimeRemaining(null)
+          return
+        }
+
+        const now = new Date()
+        const diff = pickupDate.getTime() - now.getTime()
+
+        if (isNaN(diff)) {
+          setTimeRemaining(null)
+          return
+        }
+
+        if (diff <= 0) {
+          setTimeRemaining('Time passed')
+          return
+        }
+
+        const hours = Math.floor(diff / (1000 * 60 * 60))
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
+        // Ensure all values are valid numbers
+        if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
+          setTimeRemaining(null)
+          return
+        }
+
+        // Ensure values are non-negative
+        const safeHours = Math.max(0, hours)
+        const safeMinutes = Math.max(0, minutes)
+        const safeSeconds = Math.max(0, seconds)
+
+        if (safeHours > 0) {
+          setTimeRemaining(`${safeHours}h ${safeMinutes}m ${safeSeconds}s`)
+        } else if (safeMinutes > 0) {
+          setTimeRemaining(`${safeMinutes}m ${safeSeconds}s`)
+        } else {
+          setTimeRemaining(`${safeSeconds}s`)
+        }
+      } catch (error) {
+        console.error('Error calculating time remaining:', error, currentJob.pickupTime)
+        setTimeRemaining(null)
+      }
+    }
+
+    // Calculate immediately
+    calculateTimeRemaining()
+
+    // Update every second
+    const interval = setInterval(calculateTimeRemaining, 1000)
+
+    return () => clearInterval(interval)
+  }, [currentJob?.pickupTime])
 
   if (!isOpen || !currentJob) return null
 
@@ -118,9 +210,16 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
             </div>
             <div className="flex items-start gap-2">
               <Clock className="w-5 h-5 text-primary mt-0.5" />
-              <div>
+              <div className="flex-1">
                 <span className="font-semibold text-gray-700 block">Pickup Time:</span>
                 <span className="text-gray-600">{currentJob.pickupTime || 'Not specified'}</span>
+                {timeRemaining && (
+                  <div className="mt-1">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+                      {timeRemaining}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

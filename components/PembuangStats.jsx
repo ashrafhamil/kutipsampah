@@ -61,7 +61,7 @@ export default function PembuangStats({ userId }) {
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
             <Package className="w-4 h-4 text-primary" />
-            <span className="text-xs text-gray-600 font-semibold">Total Jobs</span>
+            <span className="text-xs text-gray-600 font-semibold">Request</span>
           </div>
           <p className="text-2xl font-bold text-gray-800">{stats.totalJobs}</p>
         </div>
