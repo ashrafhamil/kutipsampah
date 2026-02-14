@@ -126,11 +126,10 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
           setIsReverseGeocoding(false)
         },
         (error) => {
-          // Only set error if user actually needs current location
-          // Otherwise, silently fall back to different location mode
-          console.error('Geolocation error:', error)
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('Location service failed to return position (server/device issue):', error?.code, error?.message || '')
+          }
           setLocationMode('different')
-          // Don't show error message - user can still use address geocoding
         }
       )
     } else {
@@ -322,7 +321,9 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                             setIsReverseGeocoding(false)
                           },
                           (error) => {
-                            console.error('Geolocation error:', error)
+                            if (process.env.NODE_ENV === 'development') {
+                              console.warn('Location service failed to return position (server/device issue):', error?.code, error?.message || '')
+                            }
                             alert('Unable to get location. Please allow location access in browser settings or use a different location.')
                             setLocationMode('different')
                           }

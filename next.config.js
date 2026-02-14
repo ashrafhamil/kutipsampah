@@ -4,6 +4,11 @@ const nextConfig = {
   images: {
     domains: ['tile.openstreetmap.org'],
   },
+  async redirects() {
+    return [
+      { source: '/favicon.ico', destination: '/icon', permanent: false },
+    ]
+  },
 }
 
 module.exports = nextConfig
