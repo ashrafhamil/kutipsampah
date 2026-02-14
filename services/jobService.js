@@ -141,11 +141,21 @@ export const subscribeToRequesterJobs = (requesterId, callback) => {
     where('requesterId', '==', requesterId)
   )
   return onSnapshot(q, (snapshot) => {
-    const jobs = snapshot.docs.map((doc) => normalizeJobData({
-      id: doc.id,
-      ...doc.data(),
-    }))
+    const jobs = snapshot.docs.map((doc) => {
+      const data = doc.data()
+      // Defensive check: ensure requesterId is set (should always be true, but helps with data consistency)
+      if (!data.requesterId) {
+        console.warn(`Job ${doc.id} is missing requesterId`)
+      }
+      return normalizeJobData({
+        id: doc.id,
+        ...data,
+      })
+    })
     callback(jobs)
+  }, (error) => {
+    console.error('Error in subscribeToRequesterJobs:', error)
+    callback([]) // Return empty array on error to prevent UI crashes
   })
 }
 
@@ -207,10 +217,18 @@ export const completeJob = async (jobId, requesterId, collectorId, success = tru
       }
 
       // Update job status - DONE for success, back to PENDING for cancel
-      transaction.update(jobRef, {
+      // Explicitly preserve requesterId to ensure data consistency
+      const updateData = {
         status: success ? JOB_STATUS.DONE : JOB_STATUS.PENDING,
         collectorId: success ? collectorId : null,
-      })
+      }
+      
+      // Ensure requesterId is preserved (should already exist, but be explicit)
+      if (jobData.requesterId) {
+        updateData.requesterId = jobData.requesterId
+      }
+      
+      transaction.update(jobRef, updateData)
     })
 
     return { success: true }
