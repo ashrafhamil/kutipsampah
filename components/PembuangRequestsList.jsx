@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { MapPin, Clock, Package, DollarSign, Inbox } from 'lucide-react'
-import { subscribeToRequesterJobs } from '@/services/jobService'
+import { subscribeToAllJobs } from '@/services/jobService'
 import { JOB_STATUS } from '@/constants/jobConstants'
 
 export default function PembuangRequestsList({ userId, onJobClick }) {
@@ -10,7 +10,7 @@ export default function PembuangRequestsList({ userId, onJobClick }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsubscribe = subscribeToRequesterJobs(userId, (updatedJobs) => {
+    const unsubscribe = subscribeToAllJobs((updatedJobs) => {
       const sorted = [...updatedJobs].sort((a, b) => {
         if (!a.createdAt || !b.createdAt) return 0
         const aTime = a.createdAt.toMillis ? a.createdAt.toMillis() : a.createdAt
@@ -22,7 +22,7 @@ export default function PembuangRequestsList({ userId, onJobClick }) {
     })
 
     return () => unsubscribe()
-  }, [userId])
+  }, [])
 
   const formatDate = (timestamp) => {
     if (!timestamp) return 'N/A'
