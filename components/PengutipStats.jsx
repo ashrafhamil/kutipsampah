@@ -46,7 +46,7 @@ export default function PengutipStats({ userId }) {
   }
 
   return (
-    <div className="bg-gray-50 pb-2 border-b border-gray-200">
+    <div className="bg-gray-50 border-b border-gray-200">
       <div className="max-w-md mx-auto">
         <div className="grid grid-cols-2 gap-3 p-4">
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">

@@ -332,7 +332,7 @@ export default function MyJobsList({ userId, onJobClick }) {
 
   return (
     <div className="h-full w-full overflow-y-auto bg-gray-50">
-      <div className="bg-gray-50 pb-2 border-b border-gray-200">
+      <div className="bg-gray-50 border-b border-gray-200">
         <div className="max-w-md mx-auto">
           <div className="p-4">
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">

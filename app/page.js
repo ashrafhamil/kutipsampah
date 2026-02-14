@@ -83,7 +83,7 @@ function KampungSapuApp() {
           )}
         </div>
       ) : (
-        <div className="h-[calc(100vh-120px)] relative">
+        <div className="h-[calc(100vh-61px)] relative">
             {activeTab === 'pending' ? (
               <PengutipMap onMarkerClick={handleMarkerClick} />
             ) : activeTab === 'myJobs' ? (
