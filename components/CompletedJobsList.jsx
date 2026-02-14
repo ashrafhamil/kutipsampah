@@ -166,7 +166,6 @@ export default function CompletedJobsList({ userId, onJobClick }) {
                       onClick={(e) => e.stopPropagation()}
                       className="text-xs text-primary hover:text-primary-dark hover:underline ml-2"
                     >
-                      📍
                     </a>
                   )}
                 </div>
