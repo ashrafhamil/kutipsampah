@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import Swal from 'sweetalert2'
+import { Edit3, UserCheck, CheckCircle } from 'lucide-react'
 import { AuthProvider, useAuth } from './providers'
 import UnifiedHeader from '@/components/UnifiedHeader'
 import PembuangForm from '@/components/PembuangForm'
@@ -74,6 +76,63 @@ function KutipSampahApp() {
                       Request Pengutip Sampah
                     </button>
                   )}
+                </div>
+
+                <div className="bg-primary/5 rounded-2xl p-6 shadow-sm border border-primary/10 mb-6">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-4">How it works</h2>
+                  <ol className="space-y-4">
+                    <li className="flex items-start gap-3">
+                      <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 text-primary shrink-0">
+                        <Edit3 className="w-4 h-4" />
+                      </span>
+                      <div>
+                        <span className="font-semibold text-gray-800">Request.</span>
+                        <span className="text-gray-600 text-sm ml-1">Fill in the form with location, date, time and number of bags.</span>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 text-primary shrink-0">
+                        <UserCheck className="w-4 h-4" />
+                      </span>
+                      <div>
+                        <span className="font-semibold text-gray-800">Collector accepts.</span>
+                        <span className="text-gray-600 text-sm ml-1">A pengutip will take your job and come to collect.</span>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 text-primary shrink-0">
+                        <CheckCircle className="w-4 h-4" />
+                      </span>
+                      <div>
+                        <span className="font-semibold text-gray-800">Done.</span>
+                        <span className="text-gray-600 text-sm ml-1">They complete the job and your waste is taken away.</span>
+                      </div>
+                    </li>
+                  </ol>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-3">Learn more</h2>
+                  <ul className="space-y-2 text-sm">
+                    <li>
+                      <Link href="/about" className="text-primary font-medium hover:underline">
+                        Story
+                      </Link>
+                      <span className="text-gray-500"> — The story behind the app</span>
+                    </li>
+                    <li>
+                      <Link href="/instructions" className="text-primary font-medium hover:underline">
+                        Instructions
+                      </Link>
+                      <span className="text-gray-500"> — How to use as requester or collector</span>
+                    </li>
+                    <li>
+                      <Link href="/solutions" className="text-primary font-medium hover:underline">
+                        Solutions
+                      </Link>
+                      <span className="text-gray-500"> — Who it's for and how we compare</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
               {showForm && (
