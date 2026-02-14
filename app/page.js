@@ -18,6 +18,7 @@ function KampungSapuApp() {
   const [selectedJob, setSelectedJob] = useState(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('pending')
+  const [showForm, setShowForm] = useState(false)
 
   const handleJobCreated = (jobId) => {
     alert('Job berjaya dihantar! Menunggu pengutip...')
@@ -51,20 +52,37 @@ function KampungSapuApp() {
       <RoleSwitcher currentRole={currentRole} onRoleChange={setCurrentRole} />
 
       {currentRole === USER_ROLES.PEMBUANG ? (
-        <div className="pb-80">
+        <div className={showForm ? 'pb-80' : ''}>
           <div className="max-w-md mx-auto px-4 py-8">
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
               <h1 className="text-2xl font-bold text-gray-800 mb-2">
                 Selamat Datang, Pembuang Sampah!
               </h1>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-sm mb-4">
                 Isi borang di bawah untuk meminta kutipan sampah makanan.
               </p>
+              {!showForm && (
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="w-full h-12 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-primary-dark transition-colors"
+                >
+                  Buat Job Baru
+                </button>
+              )}
             </div>
 
           </div>
 
-          <PembuangForm userId={user.uid} onJobCreated={handleJobCreated} />
+          {showForm && (
+            <PembuangForm 
+              userId={user.uid} 
+              onJobCreated={(jobId) => {
+                handleJobCreated(jobId)
+                setShowForm(false)
+              }}
+              onClose={() => setShowForm(false)}
+            />
+          )}
         </div>
       ) : (
         <>

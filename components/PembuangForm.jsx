@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Clock, MapPin, Package, DollarSign } from 'lucide-react'
+import { Clock, MapPin, Package, DollarSign, X } from 'lucide-react'
 import { createJob } from '@/services/jobService'
 import { PRICE_PER_BAG } from '@/constants/jobConstants'
 
@@ -17,7 +17,7 @@ const getDefaultPickupTime = () => {
   return `${year}-${month}-${date}T${hours}:${minutes}`
 }
 
-export default function PembuangForm({ userId, onJobCreated }) {
+export default function PembuangForm({ userId, onJobCreated, onClose }) {
   const [formData, setFormData] = useState({
     pickupTime: getDefaultPickupTime(),
     address: '',
@@ -153,9 +153,20 @@ export default function PembuangForm({ userId, onJobCreated }) {
   const totalPrice = formData.bagCount * PRICE_PER_BAG
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl border-t border-gray-200 z-40 max-w-md mx-auto">
+    <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl border-t border-gray-200 z-40 max-w-md mx-auto max-h-[85vh] overflow-y-auto">
       <div className="px-6 pt-4 pb-6">
-        <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
+        <div className="relative mb-4">
+          <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto"></div>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="absolute top-0 right-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-600" />
+            </button>
+          )}
+        </div>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -215,9 +226,9 @@ export default function PembuangForm({ userId, onJobCreated }) {
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   required={locationMode === 'different'}
-                  rows={3}
+                  rows={1}
                   placeholder="Masukkan alamat lengkap..."
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                  className="w-full px-4 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 />
                 <div className="mt-2 flex gap-2">
                   <button
