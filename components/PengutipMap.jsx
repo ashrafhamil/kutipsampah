@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
-import { Search, X } from 'lucide-react'
+import { Search, X, Navigation } from 'lucide-react'
 import { subscribeToPendingJobs } from '@/services/jobService'
 
 // Dynamically import Leaflet to avoid SSR issues
@@ -21,6 +21,7 @@ export default function PengutipMap({ onMarkerClick }) {
   const [searchResults, setSearchResults] = useState([])
   const [isSearching, setIsSearching] = useState(false)
   const [mapCenter, setMapCenter] = useState(null)
+  const [isGettingLocation, setIsGettingLocation] = useState(false)
   const searchTimeoutRef = useRef(null)
 
   // Geocoding function using OpenStreetMap Nominatim API
@@ -77,6 +78,30 @@ export default function PengutipMap({ onMarkerClick }) {
     setMapCenter(coords)
     setSearchQuery(location.display_name)
     setSearchResults([])
+  }
+
+  // Handle get current location button click
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.')
+      return
+    }
+
+    setIsGettingLocation(true)
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coords = [position.coords.latitude, position.coords.longitude]
+        setUserLocation(coords)
+        setMapCenter(coords)
+        setIsGettingLocation(false)
+      },
+      (error) => {
+        console.error('Geolocation error:', error)
+        setIsGettingLocation(false)
+        alert('Unable to get your location. Please allow location access in browser settings.')
+      }
+    )
   }
 
   useEffect(() => {
@@ -215,6 +240,20 @@ export default function PengutipMap({ onMarkerClick }) {
           )
         })}
       </MapContainer>
+
+      {/* Current Location Button */}
+      <button
+        onClick={handleGetCurrentLocation}
+        disabled={isGettingLocation}
+        className="absolute bottom-6 right-4 z-[30] w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-label="Get current location"
+      >
+        {isGettingLocation ? (
+          <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        ) : (
+          <Navigation className="w-6 h-6" />
+        )}
+      </button>
     </div>
   )
 }
