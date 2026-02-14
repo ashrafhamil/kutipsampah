@@ -8,7 +8,6 @@ import PembuangStats from '@/components/PembuangStats'
 import PengutipMap from '@/components/PengutipMap'
 import MyJobsList from '@/components/MyJobsList'
 import CompletedJobsList from '@/components/CompletedJobsList'
-import PengutipStats from '@/components/PengutipStats'
 import JobDrawer from '@/components/JobDrawer'
 import { USER_ROLES } from '@/constants/jobConstants'
 
@@ -89,14 +88,7 @@ function KampungSapuApp() {
             ) : activeTab === 'myJobs' ? (
               <MyJobsList userId={user.uid} onJobClick={handleJobClick} />
             ) : (
-              <div className="flex flex-col h-full">
-                <div className="flex-shrink-0">
-                  <PengutipStats userId={user.uid} />
-                </div>
-                <div className="flex-1 overflow-hidden">
-                  <CompletedJobsList userId={user.uid} onJobClick={handleJobClick} />
-                </div>
-              </div>
+              <CompletedJobsList userId={user.uid} onJobClick={handleJobClick} />
             )}
             <JobDrawer
               job={selectedJob}

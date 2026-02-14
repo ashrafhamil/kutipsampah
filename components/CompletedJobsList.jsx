@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { MapPin, Clock, Package, DollarSign, CheckCircle } from 'lucide-react'
 import { subscribeToAllCompletedJobs } from '@/services/jobService'
+import PengutipStats from './PengutipStats'
 
 export default function CompletedJobsList({ userId, onJobClick }) {
   const [jobs, setJobs] = useState([])
@@ -90,8 +91,10 @@ export default function CompletedJobsList({ userId, onJobClick }) {
 
   if (loading) {
     return (
-      <div className="h-full w-full overflow-y-auto bg-gray-50 p-4">
-        <div className="max-w-md mx-auto space-y-3">
+      <div className="h-full w-full overflow-y-auto bg-gray-50">
+        <PengutipStats userId={userId} />
+        <div className="p-4">
+          <div className="max-w-md mx-auto space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
               <div className="flex items-start justify-between mb-3">
@@ -115,6 +118,7 @@ export default function CompletedJobsList({ userId, onJobClick }) {
               </div>
             </div>
           ))}
+          </div>
         </div>
       </div>
     )
@@ -122,7 +126,9 @@ export default function CompletedJobsList({ userId, onJobClick }) {
 
   if (jobs.length === 0) {
     return (
-      <div className="h-full w-full flex items-center justify-center bg-gray-50 p-4">
+      <div className="h-full w-full overflow-y-auto bg-gray-50">
+        <PengutipStats userId={userId} />
+        <div className="h-full flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           <CheckCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-gray-700 mb-2">No Completed Jobs</h3>
@@ -130,14 +136,17 @@ export default function CompletedJobsList({ userId, onJobClick }) {
             You haven't completed any jobs. Complete jobs from the "My Jobs" tab to see them here.
           </p>
         </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="h-full w-full overflow-y-auto bg-gray-50 p-4">
-      <div className="max-w-md mx-auto space-y-3">
-        {jobs.map((job) => (
+    <div className="h-full w-full overflow-y-auto bg-gray-50">
+      <PengutipStats userId={userId} />
+      <div className="p-4">
+        <div className="max-w-md mx-auto space-y-3">
+          {jobs.map((job) => (
           <div
             key={job.id}
             onClick={() => onJobClick(job)}
@@ -203,6 +212,7 @@ export default function CompletedJobsList({ userId, onJobClick }) {
             </div>
           </div>
         ))}
+        </div>
       </div>
     </div>
   )
