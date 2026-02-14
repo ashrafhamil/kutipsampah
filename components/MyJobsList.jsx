@@ -194,7 +194,7 @@ export default function MyJobsList({ userId, onJobClick }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="text-sm font-semibold text-gray-800 line-clamp-2 hover:text-primary hover:underline"
+                  className="text-sm font-semibold text-primary line-clamp-2 hover:text-primary-dark hover:underline"
                 >
                   {formatAddress(job.address, job.gps)}
                 </a>
@@ -207,7 +207,6 @@ export default function MyJobsList({ userId, onJobClick }) {
                   onClick={(e) => e.stopPropagation()}
                   className="text-xs text-primary hover:text-primary-dark hover:underline ml-2"
                 >
-                  📍
                 </a>
               )}
             </div>
