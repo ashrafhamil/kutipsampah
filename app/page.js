@@ -11,6 +11,7 @@ import PengutipMap from '@/components/PengutipMap'
 import MyJobsList from '@/components/MyJobsList'
 import CompletedJobsList from '@/components/CompletedJobsList'
 import JobDrawer from '@/components/JobDrawer'
+import Footer from '@/components/Footer'
 import { USER_ROLES } from '@/constants/jobConstants'
 
 function KutipSampahApp() {
@@ -41,7 +42,7 @@ function KutipSampahApp() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <UnifiedHeader 
         currentRole={currentRole} 
         onRoleChange={(role) => {
@@ -96,7 +97,7 @@ function KutipSampahApp() {
           )}
         </div>
       ) : (
-        <div className="h-[calc(100vh-61px)] relative">
+        <div className="h-[calc(100vh-114px)] relative">
             {activeTab === 'pending' ? (
               <PengutipMap onMarkerClick={handleMarkerClick} />
             ) : activeTab === 'myJobs' ? (
@@ -119,6 +120,8 @@ function KutipSampahApp() {
           handleCloseDrawer()
         }}
       />
+
+      <Footer />
     </div>
   )
 }
