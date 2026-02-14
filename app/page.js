@@ -11,7 +11,7 @@ import CompletedJobsList from '@/components/CompletedJobsList'
 import JobDrawer from '@/components/JobDrawer'
 import { USER_ROLES } from '@/constants/jobConstants'
 
-function KampungSapuApp() {
+function KutipSampahApp() {
   const { user } = useAuth()
   const [currentRole, setCurrentRole] = useState(USER_ROLES.PEMBUANG)
   const [selectedJob, setSelectedJob] = useState(null)
@@ -111,7 +111,7 @@ function KampungSapuApp() {
 export default function Home() {
   return (
     <AuthProvider>
-      <KampungSapuApp />
+      <KutipSampahApp />
     </AuthProvider>
   )
 }

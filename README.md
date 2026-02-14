@@ -1,4 +1,4 @@
-# Kampung Sapu - Community Food Waste Utility
+# Kutip Sampah - Community Food Waste Utility
 
 A Next.js MVP application connecting food waste requesters (Pembuang Sampah) with collectors (Pengutip Sampah) in the community.
 
