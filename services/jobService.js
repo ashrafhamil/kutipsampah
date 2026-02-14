@@ -157,6 +157,23 @@ export const subscribeToAllCompletedJobs = (callback) => {
 }
 
 /**
+ * Subscribes to ALL collecting jobs in real-time (MVP: No user filtering)
+ */
+export const subscribeToAllCollectingJobs = (callback) => {
+  const q = query(
+    collection(db, 'jobs'),
+    where('status', '==', JOB_STATUS.COLLECTING)
+  )
+  return onSnapshot(q, (snapshot) => {
+    const jobs = snapshot.docs.map((doc) => normalizeJobData({
+      id: doc.id,
+      ...doc.data(),
+    }))
+    callback(jobs)
+  })
+}
+
+/**
  * Subscribes to all jobs created by a requester in real-time (SRP: Requester Jobs Updates)
  */
 export const subscribeToRequesterJobs = (requesterId, callback) => {
