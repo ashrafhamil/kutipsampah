@@ -18,6 +18,14 @@ export default function Footer() {
             Instructions
           </Link>
           {' · '}
+          <Link href="/solutions" className="text-primary hover:underline">
+            Solutions
+          </Link>
+          {' · '}
+          <Link href="/plans" className="text-primary hover:underline">
+            Plans
+          </Link>
+          {' · '}
           <a href="https://www.linkedin.com/in/ashrafhamil/" target="_blank" rel="noopener noreferrer" className="text-primary hover:opacity-80 inline-flex" aria-label="LinkedIn">
             <Linkedin className="w-4 h-4" />
           </a>
