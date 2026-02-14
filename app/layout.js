@@ -1,7 +1,7 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'Kutip Sampah - Community Food Waste Utility',
+  title: 'Kome Buang Kita Kutip - Community Food Waste Utility',
   description: 'Connect waste requesters with collectors',
   icons: {
     icon: '/icon',

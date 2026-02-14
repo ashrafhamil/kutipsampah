@@ -7,8 +7,10 @@ export default function UnifiedHeader({ currentRole, onRoleChange, activeTab, on
     <div className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
       <div className="w-full px-4 lg:px-6 py-2.5">
         <div className="flex items-center gap-2">
-          {/* Left spacer - Equal width to right side for centering */}
-          <div className={`flex-1 ${currentRole === USER_ROLES.PENGUTIP ? '' : 'flex'}`}></div>
+          {/* Left - App name */}
+          <div className="flex-1 flex items-center">
+            <span className="text-lg font-bold text-gray-800">Kome Buang Kita Kutip</span>
+          </div>
           
           {/* Role Switcher - Centered */}
           <div className="flex bg-gray-100 rounded-xl p-1 flex-shrink-0 min-w-[420px]">

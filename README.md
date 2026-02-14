@@ -1,4 +1,4 @@
-# Kutip Sampah - Community Food Waste Utility
+# Kome Buang Kita Kutip - Community Food Waste Utility
 
 A Next.js MVP application connecting food waste requesters (Pembuang Sampah) with collectors (Pengutip Sampah) in the community.
 
