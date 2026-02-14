@@ -286,7 +286,6 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
             <div className="flex items-start gap-2">
               <MapPin className="w-5 h-5 text-primary mt-0.5" />
               <div className="flex-1">
-                <span className="font-semibold text-gray-700 block mb-1">Address:</span>
                 {currentJob.address && (
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentJob.address)}`}

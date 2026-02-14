@@ -49,3 +49,50 @@ body {
     animation: slideUp 0.3s ease-out;
   }
 }
+
+/* User Location Marker Styles */
+.user-location-marker {
+  background: transparent;
+  border: none;
+}
+
+.user-location-pulse {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #3B82F6;
+  opacity: 0.6;
+  animation: pulse 2s infinite;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+}
+
+.user-location-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #3B82F6;
+  border: 2px solid white;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}
