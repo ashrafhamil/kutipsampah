@@ -22,7 +22,7 @@ export default function PlansPage() {
           This is just an MVP to test the idea. Intentionally no SSO, sign up, or login as it adds an extra step for you to test the app, and without it we can still test the full functionality.
         </p>
         <p className="text-gray-600 mb-4 text-justify">
-          Another plan is to enable upload of images of the trash so requesters can attach a photo and collectors can see what to expect before they accept the job.
+          We're also considering enabling upload of images of the trash so requesters can attach a photo and collectors can see what to expect before they accept the job.
         </p>
         <p className="text-gray-600 mb-6 text-justify">
           Just come here, test the app, give feedback, then leave. No extra steps.
