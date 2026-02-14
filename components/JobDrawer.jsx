@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { X, MapPin, Clock, Package, DollarSign, CheckCircle, User, Phone } from 'lucide-react'
+import Swal from 'sweetalert2'
 import { acceptJob, completeJob } from '@/services/jobService'
 import { JOB_STATUS } from '@/constants/jobConstants'
 import { doc, onSnapshot } from 'firebase/firestore'
@@ -198,7 +199,7 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
       // Real-time subscription will update the job status
     } catch (error) {
       console.error('Error accepting job:', error)
-      alert('Failed to accept job. It may have been taken by someone else.')
+      Swal.fire({ icon: 'error', title: 'Accept failed', text: 'Failed to accept job. It may have been taken by someone else.' })
     } finally {
       setIsProcessing(false)
     }
@@ -209,14 +210,14 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
     try {
       await completeJob(currentJob.id, currentJob.requesterId, userId, success)
       if (success) {
-        alert('Job completed successfully!')
+        Swal.fire({ icon: 'success', title: 'Job completed', text: 'Job completed successfully!' })
       } else {
-        alert('Job cancelled. Returning to pending status.')
+        Swal.fire({ icon: 'info', title: 'Job cancelled', text: 'Returning to pending status.' })
       }
       onClose()
     } catch (error) {
       console.error('Error completing job:', error)
-      alert('Failed to complete job: ' + error.message)
+      Swal.fire({ icon: 'error', title: 'Complete failed', text: 'Failed to complete job: ' + error.message })
     } finally {
       setIsProcessing(false)
     }

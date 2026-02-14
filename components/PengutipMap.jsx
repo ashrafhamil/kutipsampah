@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import { Search, X, Navigation, Map, Satellite, Mountain } from 'lucide-react'
+import Swal from 'sweetalert2'
 import { subscribeToPendingJobs } from '@/services/jobService'
 
 // Dynamically import Leaflet to avoid SSR issues
@@ -86,7 +87,7 @@ export default function PengutipMap({ onMarkerClick }) {
   // Handle get current location button click
   const handleGetCurrentLocation = () => {
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser.')
+      Swal.fire({ icon: 'error', title: 'Not supported', text: 'Geolocation is not supported by your browser.' })
       return
     }
 
@@ -103,7 +104,7 @@ export default function PengutipMap({ onMarkerClick }) {
       (error) => {
         console.error('Geolocation error:', error)
         setIsGettingLocation(false)
-        alert('Unable to get your location. Please allow location access in browser settings.')
+        Swal.fire({ icon: 'error', title: 'Location unavailable', text: 'Unable to get your location. Please allow location access in browser settings.' })
       }
     )
   }

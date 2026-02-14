@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Clock, MapPin, Package, DollarSign, X, User, Phone } from 'lucide-react'
+import Swal from 'sweetalert2'
 import { createJob } from '@/services/jobService'
 import { PRICE_PER_BAG } from '@/constants/jobConstants'
 
@@ -169,7 +170,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
 
     // Validation: pickup time must not be in the past
     if (new Date(formData.pickupTime) <= new Date()) {
-      alert('Please choose a future date and time for pickup.')
+      Swal.fire({ icon: 'warning', title: 'Invalid time', text: 'Please choose a future date and time for pickup.' })
       return
     }
     
@@ -179,16 +180,16 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
     // Validation: Ensure GPS coordinates are available
     if (!selectedGps.lat || !selectedGps.lng) {
       if (locationMode === 'current') {
-        alert('Current location GPS is not available. Please allow location access or use different location.')
+        Swal.fire({ icon: 'error', title: 'Location needed', text: 'Current location GPS is not available. Please allow location access or use different location.' })
       } else {
-        alert('Address GPS is not available. Please geocode the address first by clicking "Dapatkan GPS dari Alamat".')
+        Swal.fire({ icon: 'error', title: 'Address GPS needed', text: 'Please geocode the address first by clicking "Dapatkan GPS dari Alamat".' })
       }
       return
     }
     
     // Validation: Ensure address is provided when using different location
     if (locationMode === 'different' && !formData.address.trim()) {
-      alert('Please enter an address for the pickup location.')
+      Swal.fire({ icon: 'warning', title: 'Address required', text: 'Please enter an address for the pickup location.' })
       return
     }
     
@@ -238,7 +239,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
       if (onJobCreated) onJobCreated(jobId)
     } catch (error) {
       console.error('Error creating job:', error)
-      alert('Failed to create job. Please try again.')
+      Swal.fire({ icon: 'error', title: 'Request failed', text: 'Failed to create job. Please try again.' })
     } finally {
       setIsSubmitting(false)
     }
@@ -252,7 +253,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-t-3xl w-full max-w-md mx-auto max-h-[85vh] overflow-y-auto shadow-2xl animate-slideUp"
+        className="bg-white rounded-t-3xl w-full max-w-md mx-auto max-h-[100vh] overflow-y-auto shadow-2xl animate-slideUp"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-6 pt-4 pb-6">
@@ -360,7 +361,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                             if (process.env.NODE_ENV === 'development') {
                               console.warn('Location service failed to return position (server/device issue):', error?.code, error?.message || '')
                             }
-                            alert('Unable to get location. Please allow location access in browser settings or use a different location.')
+                            Swal.fire({ icon: 'error', title: 'Location unavailable', text: 'Unable to get location. Please allow location access in browser settings or use a different location.' })
                             setLocationMode('different')
                           }
                         )

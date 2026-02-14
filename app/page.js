@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Swal from 'sweetalert2'
 import { AuthProvider, useAuth } from './providers'
 import UnifiedHeader from '@/components/UnifiedHeader'
 import PembuangForm from '@/components/PembuangForm'
@@ -21,7 +22,7 @@ function KutipSampahApp() {
   const [showForm, setShowForm] = useState(false)
 
   const handleJobCreated = (jobId) => {
-    alert('Job sent successfully! Waiting for collector...')
+    Swal.fire({ icon: 'success', title: 'Request sent', text: 'Waiting for collector...' })
   }
 
   const handleMarkerClick = (job) => {
