@@ -124,6 +124,38 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
     return () => clearInterval(interval)
   }, [currentJob?.pickupTime])
 
+  const formatPickupTime = (pickupTime) => {
+    if (!pickupTime) return 'Not specified'
+    
+    try {
+      // Handle different formats
+      let date
+      
+      // Check if it's just time format (HH:MM)
+      if (/^\d{1,2}:\d{2}$/.test(pickupTime.trim())) {
+        return pickupTime // Return as-is for simple time format
+      }
+      
+      // Try parsing as full datetime format
+      date = new Date(pickupTime)
+      
+      if (isNaN(date.getTime())) {
+        return pickupTime // Return original if can't parse
+      }
+      
+      // Format as human-readable date
+      return date.toLocaleDateString('en-MY', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    } catch (error) {
+      return pickupTime // Return original on error
+    }
+  }
+
   if (!isOpen || !currentJob) return null
 
   const isAccepted = currentJob.status === JOB_STATUS.COLLECTING && currentJob.collectorId === userId
@@ -212,7 +244,7 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
               <Clock className="w-5 h-5 text-primary mt-0.5" />
               <div className="flex-1">
                 <span className="font-semibold text-gray-700 block">Pickup Time:</span>
-                <span className="text-gray-600">{currentJob.pickupTime || 'Not specified'}</span>
+                <span className="text-gray-600">{formatPickupTime(currentJob.pickupTime)}</span>
                 {timeRemaining && (
                   <div className="mt-1">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">

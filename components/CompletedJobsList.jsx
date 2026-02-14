@@ -21,13 +21,45 @@ export default function CompletedJobsList({ userId, onJobClick }) {
   const formatDate = (timestamp) => {
     if (!timestamp) return 'N/A'
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
-    return date.toLocaleDateString('ms-MY', {
+    return date.toLocaleDateString('en-MY', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
     })
+  }
+
+  const formatPickupTime = (pickupTime) => {
+    if (!pickupTime) return 'Not specified'
+    
+    try {
+      // Handle different formats
+      let date
+      
+      // Check if it's just time format (HH:MM)
+      if (/^\d{1,2}:\d{2}$/.test(pickupTime.trim())) {
+        return pickupTime // Return as-is for simple time format
+      }
+      
+      // Try parsing as full datetime format
+      date = new Date(pickupTime)
+      
+      if (isNaN(date.getTime())) {
+        return pickupTime // Return original if can't parse
+      }
+      
+      // Format as human-readable date
+      return date.toLocaleDateString('en-MY', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    } catch (error) {
+      return pickupTime // Return original on error
+    }
   }
 
   if (loading) {
@@ -113,10 +145,10 @@ export default function CompletedJobsList({ userId, onJobClick }) {
                   )}
                 </div>
                 <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    <span>{job.pickupTime || 'Not specified'}</span>
-                  </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      <span>{formatPickupTime(job.pickupTime)}</span>
+                    </div>
                   <span className="text-gray-400">•</span>
                   <span>{formatDate(job.createdAt)}</span>
                 </div>

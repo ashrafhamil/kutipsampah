@@ -30,8 +30,40 @@ export default function MyJobsList({ userId, onJobClick }) {
     })
   }
 
+  const formatPickupTime = (pickupTime) => {
+    if (!pickupTime) return 'Not specified'
+    
+    try {
+      // Handle different formats
+      let date
+      
+      // Check if it's just time format (HH:MM)
+      if (/^\d{1,2}:\d{2}$/.test(pickupTime.trim())) {
+        return pickupTime // Return as-is for simple time format
+      }
+      
+      // Try parsing as full datetime format
+      date = new Date(pickupTime)
+      
+      if (isNaN(date.getTime())) {
+        return pickupTime // Return original if can't parse
+      }
+      
+      // Format as human-readable date
+      return date.toLocaleDateString('en-MY', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    } catch (error) {
+      return pickupTime // Return original on error
+    }
+  }
+
   // Component for individual job card with countdown
-  function JobCard({ job, onJobClick, formatDate }) {
+  function JobCard({ job, onJobClick, formatDate, formatPickupTime }) {
     const [timeRemaining, setTimeRemaining] = useState(null)
 
     useEffect(() => {
@@ -156,7 +188,7 @@ export default function MyJobsList({ userId, onJobClick }) {
             <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">
               <div className="flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                <span>{job.pickupTime || 'Not specified'}</span>
+                <span>{formatPickupTime(job.pickupTime)}</span>
               </div>
               <span className="text-gray-400">•</span>
               <span>{formatDate(job.createdAt)}</span>
@@ -292,7 +324,7 @@ export default function MyJobsList({ userId, onJobClick }) {
         <div className="max-w-md mx-auto">
           <div className="space-y-3">
             {jobs.map((job) => (
-              <JobCard key={job.id} job={job} onJobClick={onJobClick} formatDate={formatDate} />
+              <JobCard key={job.id} job={job} onJobClick={onJobClick} formatDate={formatDate} formatPickupTime={formatPickupTime} />
             ))}
           </div>
         </div>
