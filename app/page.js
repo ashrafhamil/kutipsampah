@@ -66,7 +66,7 @@ function KutipSampahApp() {
                     Welcome, Pembuang Sampah!
                   </h1>
                   <p className="text-gray-600 text-sm mb-4">
-                    Fill in the form below to request trash collection.
+                    Sit back and let them throw it out for you.
                   </p>
                   {!showForm && (
                     <button
