@@ -21,7 +21,7 @@ function KampungSapuApp() {
   const [showForm, setShowForm] = useState(false)
 
   const handleJobCreated = (jobId) => {
-    alert('Job berjaya dihantar! Menunggu pengutip...')
+    alert('Job sent successfully! Waiting for collector...')
   }
 
   const handleMarkerClick = (job) => {
@@ -54,10 +54,10 @@ function KampungSapuApp() {
           <div className="max-w-md mx-auto px-4 py-8">
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
               <h1 className="text-2xl font-bold text-gray-800 mb-2">
-                Selamat Datang, Pembuang Sampah!
+                Welcome, Pembuang Sampah!
               </h1>
               <p className="text-gray-600 text-sm mb-4">
-                Isi borang di bawah untuk meminta kutipan sampah.
+                Fill in the form below to request trash collection.
               </p>
               {!showForm && (
                 <button

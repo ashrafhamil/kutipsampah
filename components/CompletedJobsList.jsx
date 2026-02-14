@@ -67,9 +67,9 @@ export default function CompletedJobsList({ userId, onJobClick }) {
       <div className="h-full w-full flex items-center justify-center bg-gray-50 p-4">
         <div className="text-center max-w-sm">
           <CheckCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-gray-700 mb-2">Tiada Job Selesai</h3>
+          <h3 className="text-lg font-bold text-gray-700 mb-2">No Completed Jobs</h3>
           <p className="text-sm text-gray-500">
-            Anda belum menyelesaikan sebarang job. Selesaikan job dari tab "My Jobs" untuk melihatnya di sini.
+            You haven't completed any jobs. Complete jobs from the "My Jobs" tab to see them here.
           </p>
         </div>
       </div>
@@ -115,7 +115,7 @@ export default function CompletedJobsList({ userId, onJobClick }) {
                 <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    <span>{job.pickupTime || 'Tidak dinyatakan'}</span>
+                    <span>{job.pickupTime || 'Not specified'}</span>
                   </div>
                   <span className="text-gray-400">•</span>
                   <span>{formatDate(job.createdAt)}</span>
@@ -123,7 +123,7 @@ export default function CompletedJobsList({ userId, onJobClick }) {
               </div>
               <div className="ml-2 flex-shrink-0">
                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                  Selesai
+                  Completed
                 </span>
               </div>
             </div>

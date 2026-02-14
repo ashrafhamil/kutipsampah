@@ -58,7 +58,7 @@ export default function MyJobsList({ userId, onJobClick }) {
           <CheckCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-gray-700 mb-2">No Active Jobs</h3>
           <p className="text-sm text-gray-500">
-            Anda belum menerima sebarang job. Tukar ke tab "Pending Jobs" untuk melihat job yang tersedia.
+            You haven't received any jobs. Switch to the "Pending Jobs" tab to see available jobs.
           </p>
         </div>
       </div>
@@ -104,7 +104,7 @@ export default function MyJobsList({ userId, onJobClick }) {
                 <div className="flex items-center gap-4 text-xs text-gray-600">
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    <span>{job.pickupTime || 'Tidak dinyatakan'}</span>
+                    <span>{job.pickupTime || 'Not specified'}</span>
                   </div>
                 </div>
               </div>

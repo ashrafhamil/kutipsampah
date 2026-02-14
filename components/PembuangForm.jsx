@@ -227,7 +227,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                           },
                           (error) => {
                             console.error('Geolocation error:', error)
-                            alert('Tidak dapat mendapatkan lokasi. Sila benarkan akses lokasi dalam tetapan pelayar atau gunakan lokasi lain.')
+                            alert('Unable to get location. Please allow location access in browser settings or use a different location.')
                             setLocationMode('different')
                           }
                         )
@@ -239,7 +239,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                 />
                 <span className="text-sm text-gray-700 font-medium">Use my current location</span>
                 {!currentLocationGps.lat && (
-                  <span className="text-xs text-amber-600 ml-auto">(Lokasi tidak tersedia)</span>
+                  <span className="text-xs text-amber-600 ml-auto">(Location not available)</span>
                 )}
               </label>
               
@@ -260,14 +260,14 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
             {locationMode === 'different' && (
               <>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Alamat
+                  Address
                 </label>
                 <textarea
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   required={locationMode === 'different'}
                   rows={1}
-                  placeholder="Masukkan alamat lengkap..."
+                  placeholder="Enter full address..."
                   className="w-full px-4 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 />
                 <div className="mt-2 flex gap-2">
@@ -277,7 +277,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                     disabled={isGeocoding || !formData.address.trim()}
                     className="px-4 py-2 text-sm font-semibold bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isGeocoding ? 'Mencari...' : 'Dapatkan GPS dari Alamat'}
+                    {isGeocoding ? 'Searching...' : 'Get GPS from Address'}
                   </button>
                 </div>
                 {geocodingError && (

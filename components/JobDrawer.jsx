@@ -94,14 +94,14 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
             </div>
             <div className="flex items-center gap-2 mb-2">
               <DollarSign className="w-5 h-5 text-primary" />
-              <span className="font-semibold text-gray-700">Harga:</span>
+              <span className="font-semibold text-gray-700">Price:</span>
               <span className="font-bold text-primary text-lg">RM {currentJob.totalPrice}</span>
             </div>
             <div className="flex items-start gap-2">
               <Clock className="w-5 h-5 text-primary mt-0.5" />
               <div>
-                <span className="font-semibold text-gray-700 block">Masa Kutip:</span>
-                <span className="text-gray-600">{currentJob.pickupTime || 'Tidak dinyatakan'}</span>
+                <span className="font-semibold text-gray-700 block">Pickup Time:</span>
+                <span className="text-gray-600">{currentJob.pickupTime || 'Not specified'}</span>
               </div>
             </div>
           </div>
@@ -110,7 +110,7 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
             <div className="flex items-start gap-2">
               <MapPin className="w-5 h-5 text-primary mt-0.5" />
               <div className="flex-1">
-                <span className="font-semibold text-gray-700 block mb-1">Alamat:</span>
+                <span className="font-semibold text-gray-700 block mb-1">Address:</span>
                 {currentJob.address && (
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentJob.address)}`}
@@ -138,14 +138,14 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
           {isAccepted && !isCompleted && (
             <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-green-600" />
-              <span className="text-green-700 font-semibold">Anda telah menerima job ini</span>
+              <span className="text-green-700 font-semibold">You have accepted this job</span>
             </div>
           )}
 
           {isCompleted && (
             <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-green-600" />
-              <span className="text-green-700 font-semibold">Job ini telah selesai</span>
+              <span className="text-green-700 font-semibold">This job has been completed</span>
             </div>
           )}
 
@@ -157,7 +157,7 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
                   disabled={isProcessing}
                   className="w-full h-12 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isProcessing ? 'Memproses...' : 'TERIMA JOB'}
+                  {isProcessing ? 'Processing...' : 'ACCEPT JOB'}
                 </button>
               )}
 
@@ -166,7 +166,7 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
                   onClick={onSwitchToMyJobs}
                   className="w-full h-12 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-primary-dark transition-colors"
                 >
-                  Lihat My Jobs
+                  View My Jobs
                 </button>
               )}
 
@@ -177,14 +177,14 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
                     disabled={isProcessing}
                     className="w-full h-12 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isProcessing ? 'Memproses...' : 'Success'}
+                    {isProcessing ? 'Processing...' : 'Success'}
                   </button>
                   <button
                     onClick={() => handleComplete(false)}
                     disabled={isProcessing}
                     className="w-full h-12 bg-red-500 text-white rounded-xl font-bold shadow-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isProcessing ? 'Memproses...' : 'Cancel'}
+                    {isProcessing ? 'Processing...' : 'Cancel'}
                   </button>
                 </div>
               )}
