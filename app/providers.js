@@ -14,24 +14,35 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Ensure user document exists
-        await createOrUpdateUser(firebaseUser.uid, {
-          displayName: `User ${firebaseUser.uid.slice(0, 8)}`,
-        })
+        // Set user immediately, don't block on user document creation
         setUser(firebaseUser)
+        setLoading(false)
+        
+        // Create/update user document in background (fire-and-forget)
+        createOrUpdateUser(firebaseUser.uid, {
+          displayName: `User ${firebaseUser.uid.slice(0, 8)}`,
+        }).catch((error) => {
+          console.error('Error creating/updating user:', error)
+        })
       } else {
         // Sign in anonymously
         try {
           const newUser = await signInAnonymouslyAuth()
-          await createOrUpdateUser(newUser.uid, {
-            displayName: `User ${newUser.uid.slice(0, 8)}`,
-          })
+          // Set user immediately, don't block on user document creation
           setUser(newUser)
+          setLoading(false)
+          
+          // Create/update user document in background (fire-and-forget)
+          createOrUpdateUser(newUser.uid, {
+            displayName: `User ${newUser.uid.slice(0, 8)}`,
+          }).catch((error) => {
+            console.error('Error creating/updating user:', error)
+          })
         } catch (error) {
           console.error('Error signing in:', error)
+          setLoading(false)
         }
       }
-      setLoading(false)
     })
 
     return () => unsubscribe()

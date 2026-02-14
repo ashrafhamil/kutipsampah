@@ -14,7 +14,8 @@ const MapViewUpdater = dynamic(() => import('./MapViewUpdater'), { ssr: false })
 
 export default function PengutipMap({ onMarkerClick }) {
   const [jobs, setJobs] = useState([])
-  const [userLocation, setUserLocation] = useState(null)
+  const defaultLocation = [3.1390, 101.6869] // Kuala Lumpur
+  const [userLocation, setUserLocation] = useState(defaultLocation)
   const [locationLoading, setLocationLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
@@ -113,18 +114,7 @@ export default function PengutipMap({ onMarkerClick }) {
     return () => unsubscribe()
   }, [])
 
-  // Show loading state while getting location
-  if (locationLoading || !userLocation) {
-    return (
-      <div className="h-full w-full flex items-center justify-center bg-gray-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Preparing map...</p>
-        </div>
-      </div>
-    )
-  }
-
+  // Use default location if user location not available yet
   const displayCenter = mapCenter || userLocation
 
   return (

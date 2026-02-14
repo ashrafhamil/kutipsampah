@@ -39,14 +39,6 @@ function KampungSapuApp() {
     setSelectedJob(null)
   }
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p>Loading...</p>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <UnifiedHeader 
