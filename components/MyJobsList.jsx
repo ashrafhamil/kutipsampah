@@ -62,8 +62,34 @@ export default function MyJobsList({ userId, onJobClick }) {
     }
   }
 
+  // Format address to show GPS, City, State instead of "Current Location"
+  const formatAddress = (address, gps) => {
+    if (!address) return 'Not specified'
+    
+    // Check if address starts with "Current Location"
+    if (address.startsWith('Current Location')) {
+      // Extract all parts from address
+      // Format: "Current Location (lat, lng, city, state)" or variations
+      const match = address.match(/Current Location\s*\(([^)]+)\)/)
+      if (match && match[1]) {
+        // Split by comma and trim each part
+        const parts = match[1].split(',').map(part => part.trim())
+        // Return all parts joined: "GPS, City, State"
+        return parts.join(', ')
+      }
+      
+      // Fallback: return GPS coordinates if available
+      if (gps?.lat && gps?.lng) {
+        return `${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)}`
+      }
+    }
+    
+    // Return original address if not "Current Location"
+    return address
+  }
+
   // Component for individual job card with countdown
-  function JobCard({ job, onJobClick, formatDate, formatPickupTime }) {
+  function JobCard({ job, onJobClick, formatDate, formatPickupTime, formatAddress }) {
     const [timeRemaining, setTimeRemaining] = useState(null)
 
     useEffect(() => {
@@ -170,7 +196,7 @@ export default function MyJobsList({ userId, onJobClick }) {
                   onClick={(e) => e.stopPropagation()}
                   className="text-sm font-semibold text-gray-800 line-clamp-2 hover:text-primary hover:underline"
                 >
-                  {job.address}
+                  {formatAddress(job.address, job.gps)}
                 </a>
               )}
               {job.gps?.lat && job.gps?.lng && (
@@ -324,7 +350,7 @@ export default function MyJobsList({ userId, onJobClick }) {
         <div className="max-w-md mx-auto">
           <div className="space-y-3">
             {jobs.map((job) => (
-              <JobCard key={job.id} job={job} onJobClick={onJobClick} formatDate={formatDate} formatPickupTime={formatPickupTime} />
+              <JobCard key={job.id} job={job} onJobClick={onJobClick} formatDate={formatDate} formatPickupTime={formatPickupTime} formatAddress={formatAddress} />
             ))}
           </div>
         </div>

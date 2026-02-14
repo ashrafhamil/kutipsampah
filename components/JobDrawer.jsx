@@ -156,6 +156,32 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
     }
   }
 
+  // Format address to show GPS, City, State instead of "Current Location"
+  const formatAddress = (address, gps) => {
+    if (!address) return 'Not specified'
+    
+    // Check if address starts with "Current Location"
+    if (address.startsWith('Current Location')) {
+      // Extract all parts from address
+      // Format: "Current Location (lat, lng, city, state)" or variations
+      const match = address.match(/Current Location\s*\(([^)]+)\)/)
+      if (match && match[1]) {
+        // Split by comma and trim each part
+        const parts = match[1].split(',').map(part => part.trim())
+        // Return all parts joined: "GPS, City, State"
+        return parts.join(', ')
+      }
+      
+      // Fallback: return GPS coordinates if available
+      if (gps?.lat && gps?.lng) {
+        return `${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)}`
+      }
+    }
+    
+    // Return original address if not "Current Location"
+    return address
+  }
+
   if (!isOpen || !currentJob) return null
 
   const isAccepted = currentJob.status === JOB_STATUS.COLLECTING && currentJob.collectorId === userId
@@ -266,19 +292,9 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(currentJob.address)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-600 text-sm leading-relaxed hover:text-primary hover:underline block"
+                    className="text-primary text-sm leading-relaxed hover:text-primary-dark hover:underline block font-semibold"
                   >
-                    {currentJob.address}
-                  </a>
-                )}
-                {currentJob.gps?.lat && currentJob.gps?.lng && (
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${currentJob.gps.lat},${currentJob.gps.lng}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-primary hover:text-primary-dark hover:underline mt-2 block"
-                  >
-                    📍 Navigate to GPS: {currentJob.gps.lat.toFixed(4)}, {currentJob.gps.lng.toFixed(4)}
+                    {formatAddress(currentJob.address, currentJob.gps)}
                   </a>
                 )}
               </div>

@@ -125,7 +125,7 @@ export default function PengutipMap({ onMarkerClick }) {
       />
       
       {/* Search Bar */}
-      <div className="absolute top-4 left-4 right-4 z-[1000] max-w-md mx-auto">
+      <div className="absolute top-4 left-4 right-4 z-[20] max-w-md mx-auto">
         <div className="relative">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />

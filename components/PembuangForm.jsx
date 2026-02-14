@@ -27,14 +27,49 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
   })
   const [currentLocationGps, setCurrentLocationGps] = useState({ lat: null, lng: null })
   const [addressGps, setAddressGps] = useState({ lat: null, lng: null })
+  const [currentLocationCity, setCurrentLocationCity] = useState(null)
+  const [currentLocationState, setCurrentLocationState] = useState(null)
   const [locationMode, setLocationMode] = useState('current')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isGeocoding, setIsGeocoding] = useState(false)
+  const [isReverseGeocoding, setIsReverseGeocoding] = useState(false)
   const [locationError, setLocationError] = useState(null)
   const [geocodingError, setGeocodingError] = useState(null)
   
   // Derive useCurrentLocation from locationMode
   const useCurrentLocation = locationMode === 'current'
+
+  // Reverse geocoding function to get city and state name from GPS coordinates
+  const reverseGeocode = async (lat, lng) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+      )
+      const data = await response.json()
+      
+      if (data && data.address) {
+        // Try to get city name from various possible fields
+        const city = data.address.city || 
+                    data.address.town || 
+                    data.address.village || 
+                    data.address.municipality ||
+                    data.address.county ||
+                    data.address.state_district ||
+                    null
+        
+        // Get state name as fallback
+        const state = data.address.state || 
+                     data.address.region ||
+                     null
+        
+        return { city, state }
+      }
+      return { city: null, state: null }
+    } catch (error) {
+      console.error('Reverse geocoding error:', error)
+      return { city: null, state: null }
+    }
+  }
 
   // Geocoding function using Nominatim API
   const geocodeAddress = async (address) => {
@@ -76,13 +111,19 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
     // Auto-fill GPS coordinates for current location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCurrentLocationGps({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          })
+        async (position) => {
+          const lat = position.coords.latitude
+          const lng = position.coords.longitude
+          setCurrentLocationGps({ lat, lng })
           setLocationMode('current')
           setLocationError(null)
+          
+          // Get city and state name from reverse geocoding
+          setIsReverseGeocoding(true)
+          const location = await reverseGeocode(lat, lng)
+          setCurrentLocationCity(location.city)
+          setCurrentLocationState(location.state)
+          setIsReverseGeocoding(false)
         },
         (error) => {
           // Only set error if user actually needs current location
@@ -123,9 +164,20 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
 
     try {
       // Use address from form, or default to "Current Location" when using current location
-      const addressToSubmit = locationMode === 'current' 
-        ? `Current Location (${selectedGps.lat.toFixed(4)}, ${selectedGps.lng.toFixed(4)})`
-        : formData.address
+      let addressToSubmit
+      if (locationMode === 'current') {
+        // Build location parts: GPS, City, State
+        const parts = [`${selectedGps.lat.toFixed(4)}, ${selectedGps.lng.toFixed(4)}`]
+        if (currentLocationCity) {
+          parts.push(currentLocationCity)
+        }
+        if (currentLocationState) {
+          parts.push(currentLocationState)
+        }
+        addressToSubmit = `Current Location (${parts.join(', ')})`
+      } else {
+        addressToSubmit = formData.address
+      }
 
       const jobId = await createJob({
         requesterId: userId,
@@ -255,13 +307,19 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                       // Try to get location again when user selects it
                       if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition(
-                          (position) => {
-                            setCurrentLocationGps({
-                              lat: position.coords.latitude,
-                              lng: position.coords.longitude,
-                            })
+                          async (position) => {
+                            const lat = position.coords.latitude
+                            const lng = position.coords.longitude
+                            setCurrentLocationGps({ lat, lng })
                             setLocationMode('current')
                             setLocationError(null)
+                            
+                            // Get city and state name from reverse geocoding
+                            setIsReverseGeocoding(true)
+                            const location = await reverseGeocode(lat, lng)
+                            setCurrentLocationCity(location.city)
+                            setCurrentLocationState(location.state)
+                            setIsReverseGeocoding(false)
                           },
                           (error) => {
                             console.error('Geolocation error:', error)
@@ -343,7 +401,12 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                         className="text-xs text-primary underline hover:text-primary-dark font-semibold"
                       >
                         {currentLocationGps.lat.toFixed(4)}, {currentLocationGps.lng.toFixed(4)}
+                        {currentLocationCity && `, ${currentLocationCity}`}
+                        {!currentLocationCity && currentLocationState && `, ${currentLocationState}`}
                       </a>
+                      {isReverseGeocoding && (
+                        <p className="text-xs text-gray-500 mt-1">Loading location name...</p>
+                      )}
                     </div>
                     <span className="text-xs bg-primary text-white px-2 py-1 rounded-full font-semibold">
                       Active
