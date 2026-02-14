@@ -224,7 +224,7 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
-      <div className="bg-white rounded-t-3xl w-full max-w-md mx-auto max-h-[80vh] overflow-y-auto">
+      <div className="bg-white rounded-t-3xl w-full max-w-md mx-auto max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-800">Job Details</h2>
           <button
@@ -342,14 +342,14 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
                     disabled={isProcessing}
                     className="w-full h-12 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isProcessing ? 'Processing...' : 'Success'}
+                    {isProcessing ? 'Processing...' : 'Trash Collected'}
                   </button>
                   <button
                     onClick={() => handleComplete(false)}
                     disabled={isProcessing}
                     className="w-full h-12 bg-red-500 text-white rounded-xl font-bold shadow-lg hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isProcessing ? 'Processing...' : 'Cancel'}
+                    {isProcessing ? 'Processing...' : 'Cancel Job'}
                   </button>
                 </div>
               )}
