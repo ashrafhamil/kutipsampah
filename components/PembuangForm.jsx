@@ -5,12 +5,23 @@ import { Clock, MapPin, Package, DollarSign, X, User, Phone } from 'lucide-react
 import { createJob } from '@/services/jobService'
 import { PRICE_PER_BAG } from '@/constants/jobConstants'
 
-// Helper function to get current date and time + 1 hour in datetime-local format (YYYY-MM-DDTHH:MM)
+// Helper: current date/time in datetime-local format (YYYY-MM-DDTHH:MM) for min attribute
+const getMinPickupTime = () => {
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = String(now.getMonth() + 1).padStart(2, '0')
+  const d = String(now.getDate()).padStart(2, '0')
+  const h = String(now.getHours()).padStart(2, '0')
+  const min = String(now.getMinutes()).padStart(2, '0')
+  return `${y}-${m}-${d}T${h}:${min}`
+}
+
+// Helper: current date/time + 1 hour in datetime-local format for default value
 const getDefaultPickupTime = () => {
   const now = new Date()
-  const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000) // Add 1 hour
+  const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000)
   const year = oneHourLater.getFullYear()
-  const month = String(oneHourLater.getMonth() + 1).padStart(2, '0') // Month is 0-indexed
+  const month = String(oneHourLater.getMonth() + 1).padStart(2, '0')
   const date = String(oneHourLater.getDate()).padStart(2, '0')
   const hours = String(oneHourLater.getHours()).padStart(2, '0')
   const minutes = String(oneHourLater.getMinutes()).padStart(2, '0')
@@ -155,6 +166,12 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    // Validation: pickup time must not be in the past
+    if (new Date(formData.pickupTime) <= new Date()) {
+      alert('Please choose a future date and time for pickup.')
+      return
+    }
     
     // Determine which GPS to use based on location mode
     const selectedGps = locationMode === 'current' ? currentLocationGps : addressGps
@@ -293,6 +310,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
             <input
               type="datetime-local"
               value={formData.pickupTime}
+              min={getMinPickupTime()}
               onChange={(e) => setFormData({ ...formData, pickupTime: e.target.value })}
               required
               className="w-full h-12 px-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
