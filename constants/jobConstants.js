@@ -1,0 +1,12 @@
+export const JOB_STATUS = {
+  PENDING: 'PENDING',
+  COLLECTING: 'COLLECTING',
+  DONE: 'DONE',
+}
+
+export const PRICE_PER_BAG = 1
+
+export const USER_ROLES = {
+  PEMBUANG: 'PEMBUANG',
+  PENGUTIP: 'PENGUTIP',
+}
