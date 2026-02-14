@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import { AuthProvider, useAuth } from './providers'
-import RoleSwitcher from '@/components/RoleSwitcher'
+import UnifiedHeader from '@/components/UnifiedHeader'
 import PembuangForm from '@/components/PembuangForm'
+import PembuangStats from '@/components/PembuangStats'
 import PengutipMap from '@/components/PengutipMap'
 import MyJobsList from '@/components/MyJobsList'
 import CompletedJobsList from '@/components/CompletedJobsList'
-import PengutipTabs from '@/components/PengutipTabs'
 import PengutipStats from '@/components/PengutipStats'
 import JobDrawer from '@/components/JobDrawer'
 import { USER_ROLES } from '@/constants/jobConstants'
@@ -49,10 +49,16 @@ function KampungSapuApp() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <RoleSwitcher currentRole={currentRole} onRoleChange={setCurrentRole} />
+      <UnifiedHeader 
+        currentRole={currentRole} 
+        onRoleChange={setCurrentRole}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
       {currentRole === USER_ROLES.PEMBUANG ? (
         <div className={showForm ? 'pb-80' : ''}>
+          <PembuangStats userId={user.uid} />
           <div className="max-w-md mx-auto px-4 py-8">
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
               <h1 className="text-2xl font-bold text-gray-800 mb-2">
@@ -85,9 +91,7 @@ function KampungSapuApp() {
           )}
         </div>
       ) : (
-        <>
-          <PengutipTabs activeTab={activeTab} onTabChange={setActiveTab} />
-          <div className="h-[calc(100vh-146px)] relative">
+        <div className="h-[calc(100vh-120px)] relative">
             {activeTab === 'pending' ? (
               <PengutipMap onMarkerClick={handleMarkerClick} />
             ) : activeTab === 'myJobs' ? (
@@ -114,8 +118,7 @@ function KampungSapuApp() {
                 handleCloseDrawer()
               }}
             />
-          </div>
-        </>
+        </div>
       )}
     </div>
   )

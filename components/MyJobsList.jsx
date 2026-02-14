@@ -36,7 +36,7 @@ export default function MyJobsList({ userId, onJobClick }) {
       <div className="h-full w-full flex items-center justify-center bg-gray-50 p-4">
         <div className="text-center max-w-sm">
           <CheckCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-gray-700 mb-2">Tiada Job Aktif</h3>
+          <h3 className="text-lg font-bold text-gray-700 mb-2">No Active Jobs</h3>
           <p className="text-sm text-gray-500">
             Anda belum menerima sebarang job. Tukar ke tab "Pending Jobs" untuk melihat job yang tersedia.
           </p>
@@ -90,7 +90,7 @@ export default function MyJobsList({ userId, onJobClick }) {
               </div>
               <div className="ml-2 flex-shrink-0">
                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                  Aktif
+                  Active
                 </span>
               </div>
             </div>
@@ -100,7 +100,7 @@ export default function MyJobsList({ userId, onJobClick }) {
                 <div className="flex items-center gap-1.5">
                   <Package className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold text-gray-700">
-                    {job.bagCount} beg
+                    {job.bagCount} bag
                   </span>
                 </div>
               </div>

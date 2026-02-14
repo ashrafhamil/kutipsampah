@@ -133,6 +133,23 @@ export const subscribeToCompletedJobs = (collectorId, callback) => {
 }
 
 /**
+ * Subscribes to all jobs created by a requester in real-time (SRP: Requester Jobs Updates)
+ */
+export const subscribeToRequesterJobs = (requesterId, callback) => {
+  const q = query(
+    collection(db, 'jobs'),
+    where('requesterId', '==', requesterId)
+  )
+  return onSnapshot(q, (snapshot) => {
+    const jobs = snapshot.docs.map((doc) => normalizeJobData({
+      id: doc.id,
+      ...doc.data(),
+    }))
+    callback(jobs)
+  })
+}
+
+/**
  * Accepts a job with ACID transaction (SRP: Job Acceptance)
  */
 export const acceptJob = async (jobId, collectorId) => {

@@ -143,7 +143,7 @@ export default function PengutipMap({ onMarkerClick }) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari lokasi atau bandar..."
+              placeholder="Find location or city..."
               className="w-full h-12 pl-12 pr-12 rounded-xl border border-gray-200 shadow-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary text-sm"
             />
             {searchQuery && (
@@ -217,7 +217,7 @@ export default function PengutipMap({ onMarkerClick }) {
             >
               <Popup>
                 <div className="text-sm">
-                  <p className="font-bold">{job.bagCount} beg</p>
+                  <p className="font-bold">{job.bagCount} bag</p>
                   <p className="text-gray-600">{job.address}</p>
                 </div>
               </Popup>

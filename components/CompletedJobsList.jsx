@@ -114,7 +114,7 @@ export default function CompletedJobsList({ userId, onJobClick }) {
                 <div className="flex items-center gap-1.5">
                   <Package className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold text-gray-700">
-                    {job.bagCount} beg
+                    {job.bagCount} bag
                   </span>
                 </div>
               </div>

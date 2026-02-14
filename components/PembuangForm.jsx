@@ -308,7 +308,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                       </a>
                     </div>
                     <span className="text-xs bg-primary text-white px-2 py-1 rounded-full font-semibold">
-                      Aktif
+                      Active
                     </span>
                   </div>
                 </div>
@@ -330,7 +330,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                       </a>
                     </div>
                     <span className="text-xs bg-primary text-white px-2 py-1 rounded-full font-semibold">
-                      Aktif
+                      Active
                     </span>
                   </div>
                 </div>

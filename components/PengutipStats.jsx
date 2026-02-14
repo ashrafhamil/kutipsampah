@@ -29,17 +29,22 @@ export default function PengutipStats({ userId }) {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 gap-3 p-4">
-        {[1, 2].map((i) => (
-          <div key={i} className="bg-gray-100 rounded-xl h-20 animate-pulse"></div>
-        ))}
+      <div className="bg-gray-50 pb-2 border-b border-gray-200">
+        <div className="max-w-md mx-auto">
+          <div className="grid grid-cols-2 gap-3 p-4">
+            {[1, 2].map((i) => (
+              <div key={i} className="bg-gray-100 rounded-xl h-20 animate-pulse"></div>
+            ))}
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="bg-gray-50 pb-2 border-b border-gray-200">
-      <div className="grid grid-cols-2 gap-3 p-4">
+      <div className="max-w-md mx-auto">
+        <div className="grid grid-cols-2 gap-3 p-4">
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle className="w-4 h-4 text-green-600" />
@@ -55,6 +60,7 @@ export default function PengutipStats({ userId }) {
           </div>
           <p className="text-2xl font-bold text-primary">RM {stats.totalEarned}</p>
         </div>
+      </div>
       </div>
     </div>
   )
