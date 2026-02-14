@@ -19,8 +19,8 @@ const getDefaultPickupTime = () => {
 
 export default function PembuangForm({ userId, onJobCreated, onClose }) {
   const [formData, setFormData] = useState({
-    name: 'Jebon',
-    phoneNumber: '0123456789',
+    name: '',
+    phoneNumber: '',
     pickupTime: getDefaultPickupTime(),
     address: '',
     bagCount: 1,
@@ -29,6 +29,9 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
   const [addressGps, setAddressGps] = useState({ lat: null, lng: null })
   const [currentLocationCity, setCurrentLocationCity] = useState(null)
   const [currentLocationState, setCurrentLocationState] = useState(null)
+  const [addressCity, setAddressCity] = useState(null)
+  const [addressState, setAddressState] = useState(null)
+  const [isAddressReverseGeocoding, setIsAddressReverseGeocoding] = useState(false)
   const [locationMode, setLocationMode] = useState('current')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isGeocoding, setIsGeocoding] = useState(false)
@@ -89,19 +92,32 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
 
       if (data && data.length > 0) {
         const location = data[0]
-        setAddressGps({
-          lat: parseFloat(location.lat),
-          lng: parseFloat(location.lon),
-        })
+        const lat = parseFloat(location.lat)
+        const lng = parseFloat(location.lon)
+        setAddressGps({ lat, lng })
         setGeocodingError(null)
+        setAddressCity(null)
+        setAddressState(null)
+        setIsAddressReverseGeocoding(true)
+        try {
+          const rev = await reverseGeocode(lat, lng)
+          setAddressCity(rev.city)
+          setAddressState(rev.state)
+        } finally {
+          setIsAddressReverseGeocoding(false)
+        }
       } else {
         setGeocodingError('Address not found. Please try a more specific address.')
         setAddressGps({ lat: null, lng: null })
+        setAddressCity(null)
+        setAddressState(null)
       }
     } catch (error) {
       console.error('Geocoding error:', error)
       setGeocodingError('Failed to geocode address. Please try again.')
       setAddressGps({ lat: null, lng: null })
+      setAddressCity(null)
+      setAddressState(null)
     } finally {
       setIsGeocoding(false)
     }
@@ -190,13 +206,15 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
 
       // Reset form (but keep default name and phoneNumber)
       setFormData({
-        name: 'Jebon',
-        phoneNumber: '0123456789',
+        name: '',
+        phoneNumber: '',
         pickupTime: getDefaultPickupTime(),
         address: '',
         bagCount: 1,
       })
       setAddressGps({ lat: null, lng: null })
+      setAddressCity(null)
+      setAddressState(null)
       setLocationMode(currentLocationGps.lat ? 'current' : 'different')
       setGeocodingError(null)
 
@@ -245,9 +263,9 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Jebon"
                 required
                 className="w-full h-12 px-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="Name"
               />
             </div>
 
@@ -260,9 +278,9 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                 type="tel"
                 value={formData.phoneNumber}
                 onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                placeholder="0123456789"
                 required
                 className="w-full h-12 px-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="Phone"
               />
             </div>
           </div>
@@ -427,6 +445,9 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
                         className="text-xs text-primary underline hover:text-primary-dark font-semibold"
                       >
                         {addressGps.lat.toFixed(4)}, {addressGps.lng.toFixed(4)}
+                        {isAddressReverseGeocoding && ', Loading...'}
+                        {!isAddressReverseGeocoding && addressCity && `, ${addressCity}`}
+                        {!isAddressReverseGeocoding && !addressCity && addressState && `, ${addressState}`}
                       </a>
                     </div>
                     <span className="text-xs bg-primary text-white px-2 py-1 rounded-full font-semibold">
