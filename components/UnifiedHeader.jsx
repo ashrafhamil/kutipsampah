@@ -6,14 +6,15 @@ export default function UnifiedHeader({ currentRole, onRoleChange, activeTab, on
   return (
     <div className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
       <div className="w-full px-4 lg:px-6 py-2.5">
-        <div className="flex items-center gap-2">
+        {/* Mobile: Stack vertically, Desktop: Keep horizontal */}
+        <div className="flex flex-col lg:flex-row items-center gap-2">
           {/* Left - App name */}
-          <div className="flex-1 flex items-center">
+          <div className="flex-1 flex items-center w-full lg:w-auto">
             <span className="text-lg font-bold text-gray-800">Kome Buang Kita Kutip</span>
           </div>
           
-          {/* Role Switcher - Centered */}
-          <div className="flex bg-gray-100 rounded-xl p-1 flex-shrink-0 min-w-[420px]">
+          {/* Role Switcher - Full width on mobile, centered on desktop */}
+          <div className="flex bg-gray-100 rounded-xl p-1 flex-shrink-0 w-full lg:min-w-[420px] lg:w-auto">
             <button
               onClick={() => onRoleChange(USER_ROLES.PEMBUANG)}
               className={`flex-1 py-2 px-4 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
@@ -36,10 +37,10 @@ export default function UnifiedHeader({ currentRole, onRoleChange, activeTab, on
             </button>
           </div>
 
-          {/* Right side - Tabs or spacer for balance */}
-          <div className="flex-1 flex justify-end">
+          {/* Tabs - Full width on mobile below role switcher, right-aligned on desktop */}
+          <div className="flex-1 flex justify-end w-full lg:w-auto">
             {currentRole === USER_ROLES.PEMBUANG && (
-              <div className="flex bg-gray-100 rounded-xl p-1 gap-1 flex-shrink-0">
+              <div className="flex bg-gray-100 rounded-xl p-1 gap-1 flex-shrink-0 w-full lg:w-auto">
                 <button
                   onClick={() => onTabChange('request')}
                   className={`flex-1 py-2 px-4 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
@@ -63,7 +64,7 @@ export default function UnifiedHeader({ currentRole, onRoleChange, activeTab, on
               </div>
             )}
             {currentRole === USER_ROLES.PENGUTIP && (
-              <div className="flex bg-gray-100 rounded-xl p-1 gap-1 flex-shrink-0">
+              <div className="flex bg-gray-100 rounded-xl p-1 gap-1 flex-shrink-0 w-full lg:w-auto">
                 <button
                   onClick={() => onTabChange('pending')}
                   className={`flex-1 py-2 px-4 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
