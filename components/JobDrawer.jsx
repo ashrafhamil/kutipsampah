@@ -7,6 +7,7 @@ import { acceptJob, completeJob } from '@/services/jobService'
 import { JOB_STATUS } from '@/constants/jobConstants'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
+import { formatPickupTime, formatAddress } from '@/utils/jobUtils'
 
 export default function JobDrawer({ job, isOpen, onClose, userId, userRole, activeTab, onSwitchToMyJobs }) {
   const [isProcessing, setIsProcessing] = useState(false)
@@ -124,64 +125,6 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
 
     return () => clearInterval(interval)
   }, [currentJob?.pickupTime])
-
-  const formatPickupTime = (pickupTime) => {
-    if (!pickupTime) return 'Not specified'
-    
-    try {
-      // Handle different formats
-      let date
-      
-      // Check if it's just time format (HH:MM)
-      if (/^\d{1,2}:\d{2}$/.test(pickupTime.trim())) {
-        return pickupTime // Return as-is for simple time format
-      }
-      
-      // Try parsing as full datetime format
-      date = new Date(pickupTime)
-      
-      if (isNaN(date.getTime())) {
-        return pickupTime // Return original if can't parse
-      }
-      
-      // Format as human-readable date
-      return date.toLocaleDateString('en-MY', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    } catch (error) {
-      return pickupTime // Return original on error
-    }
-  }
-
-  // Format address to show GPS, City, State instead of "Current Location"
-  const formatAddress = (address, gps) => {
-    if (!address) return 'Not specified'
-    
-    // Check if address starts with "Current Location"
-    if (address.startsWith('Current Location')) {
-      // Extract all parts from address
-      // Format: "Current Location (lat, lng, city, state)" or variations
-      const match = address.match(/Current Location\s*\(([^)]+)\)/)
-      if (match && match[1]) {
-        // Split by comma and trim each part
-        const parts = match[1].split(',').map(part => part.trim())
-        // Return all parts joined: "GPS, City, State"
-        return parts.join(', ')
-      }
-      
-      // Fallback: return GPS coordinates if available
-      if (gps?.lat && gps?.lng) {
-        return `${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)}`
-      }
-    }
-    
-    // Return original address if not "Current Location"
-    return address
-  }
 
   if (!isOpen || !currentJob) return null
 

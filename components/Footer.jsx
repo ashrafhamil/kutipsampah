@@ -14,6 +14,10 @@ export default function Footer() {
             Story
           </Link>
           {' · '}
+          <Link href="/feedback" className="text-primary hover:underline">
+            Feedback
+          </Link>
+          {' · '}
           <Link href="/instructions" className="text-primary hover:underline">
             Instructions
           </Link>

@@ -1,4 +1,5 @@
 import './globals.css'
+import LayoutWithFeedback from '@/components/LayoutWithFeedback'
 
 export const metadata = {
   title: 'Kome Buang Kita Kutip - Community Waste Utility',
@@ -11,7 +12,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="ms">
-      <body>{children}</body>
+      <body>
+        <LayoutWithFeedback>{children}</LayoutWithFeedback>
+      </body>
     </html>
   )
 }

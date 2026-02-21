@@ -10,6 +10,9 @@ import {
   getStatusLabel,
   getStatusClass,
   getFilterButtonActiveClass,
+  formatTimestampForDisplay,
+  formatPickupTime,
+  formatAddress,
 } from '@/utils/jobUtils'
 
 /** Filter options for My Requests, in display order. */
@@ -43,50 +46,6 @@ export default function PembuangRequestsList({ userId, onJobClick, statusFilter:
 
     return () => unsubscribe()
   }, [])
-
-  const formatDate = (timestamp) => {
-    if (!timestamp) return 'N/A'
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
-    return date.toLocaleDateString('en-MY', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  }
-
-  const formatPickupTime = (pickupTime) => {
-    if (!pickupTime) return 'Not specified'
-    try {
-      if (/^\d{1,2}:\d{2}$/.test(pickupTime.trim())) return pickupTime
-      const date = new Date(pickupTime)
-      if (isNaN(date.getTime())) return pickupTime
-      return date.toLocaleDateString('en-MY', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    } catch {
-      return pickupTime
-    }
-  }
-
-  const formatAddress = (address, gps) => {
-    if (!address) return 'Not specified'
-    if (address.startsWith('Current Location')) {
-      const match = address.match(/Current Location\s*\(([^)]+)\)/)
-      if (match && match[1]) {
-        return match[1].split(',').map((p) => p.trim()).join(', ')
-      }
-      if (gps?.lat != null && gps?.lng != null) {
-        return `${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)}`
-      }
-    }
-    return address
-  }
 
   // Filter and sort jobs
   const filteredJobs = filterJobsByStatus(jobs, statusFilter)
@@ -183,7 +142,7 @@ export default function PembuangRequestsList({ userId, onJobClick, statusFilter:
                 <span>{formatPickupTime(job.pickupTime)}</span>
               </div>
               <span className="text-gray-400">•</span>
-              <span>{formatDate(job.createdAt)}</span>
+              <span>{formatTimestampForDisplay(job.createdAt)}</span>
             </div>
             <div className="flex items-center justify-between pt-3 border-t border-gray-100">
               <div className="flex items-center gap-1.5">

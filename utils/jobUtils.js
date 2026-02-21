@@ -142,3 +142,63 @@ export const sortJobsByStatusAndDate = (jobs) => {
     return compareTimestampsDesc(a.createdAt, b.createdAt)
   })
 }
+
+/**
+ * Converts a Firestore Timestamp (or number/Date) to a single display string.
+ * @param {any} timestamp - Firestore Timestamp, Date, or number
+ * @returns {string} Human-readable date string or '—' if invalid
+ */
+export const formatTimestampForDisplay = (timestamp) => {
+  const ms = getTimestampMillis(timestamp)
+  if (ms === null) return '—'
+  return new Date(ms).toLocaleDateString('en-MY', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+/**
+ * Formats pickup time for display (handles HH:MM or full datetime).
+ * @param {string} pickupTime - Pickup time string
+ * @returns {string} Human-readable string or original if unparseable
+ */
+export const formatPickupTime = (pickupTime) => {
+  if (!pickupTime) return 'Not specified'
+  try {
+    if (/^\d{1,2}:\d{2}$/.test(pickupTime.trim())) return pickupTime
+    const date = new Date(pickupTime)
+    if (isNaN(date.getTime())) return pickupTime
+    return date.toLocaleDateString('en-MY', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  } catch {
+    return pickupTime
+  }
+}
+
+/**
+ * Formats address for display (including "Current Location" parsing and GPS fallback).
+ * @param {string} address - Address string
+ * @param {{ lat?: number, lng?: number }|null} gps - Optional GPS
+ * @returns {string} Human-readable address
+ */
+export const formatAddress = (address, gps) => {
+  if (!address) return 'Not specified'
+  if (address.startsWith('Current Location')) {
+    const match = address.match(/Current Location\s*\(([^)]+)\)/)
+    if (match && match[1]) {
+      return match[1].split(',').map((part) => part.trim()).join(', ')
+    }
+    if (gps?.lat != null && gps?.lng != null) {
+      return `${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)}`
+    }
+  }
+  return address
+}

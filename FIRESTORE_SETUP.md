@@ -27,6 +27,11 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == userId;
     }
+
+    // Feedback collection - authenticated users can read and create (no update/delete for MVP)
+    match /feedback/{feedbackId} {
+      allow read, create: if request.auth != null;
+    }
   }
 }
 ```
@@ -63,6 +68,17 @@ service cloud.firestore {
 }
 ```
 
+### Feedback Collection (`/feedback/{feedbackId}`)
+
+```javascript
+{
+  id: string (auto-generated),
+  name: string | null (optional),
+  message: string (required),
+  createdAt: Timestamp
+}
+```
+
 ## 4. Environment Variables
 
 1. Go to Firebase Console → Project Settings → General
@@ -83,6 +99,8 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ## 5. Indexes (Optional)
 
 If you plan to query jobs by status and other fields together, you may need to create composite indexes. Firestore will prompt you with a link if an index is needed.
+
+For the Feedback page, queries use `orderBy('createdAt', 'desc')`. Firestore may prompt you to create a single-field index on `createdAt` for the `feedback` collection; use the link in the error message to create it.
 
 ## 6. Testing
 
