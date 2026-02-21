@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { Clock, MapPin, Package, DollarSign, X, User, Phone } from 'lucide-react'
+import { useState } from 'react'
+import { Clock, DollarSign, X, User, Phone } from 'lucide-react'
 import Swal from 'sweetalert2'
 import { createJob } from '@/services/jobService'
 import { PRICE_PER_BAG, VALIDATION } from '@/constants/jobConstants'
@@ -12,82 +12,10 @@ import {
   clampBagCount,
   truncateName
 } from '@/utils/validation'
-
-// Helper: current date/time in datetime-local format (YYYY-MM-DDTHH:MM) for min attribute
-const getMinPickupTime = () => {
-  const now = new Date()
-  const y = now.getFullYear()
-  const m = String(now.getMonth() + 1).padStart(2, '0')
-  const d = String(now.getDate()).padStart(2, '0')
-  const h = String(now.getHours()).padStart(2, '0')
-  const min = String(now.getMinutes()).padStart(2, '0')
-  return `${y}-${m}-${d}T${h}:${min}`
-}
-
-// Helper: current date/time + 1 hour in datetime-local format for default value
-const getDefaultPickupTime = () => {
-  const now = new Date()
-  const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000)
-  const year = oneHourLater.getFullYear()
-  const month = String(oneHourLater.getMonth() + 1).padStart(2, '0')
-  const date = String(oneHourLater.getDate()).padStart(2, '0')
-  const hours = String(oneHourLater.getHours()).padStart(2, '0')
-  const minutes = String(oneHourLater.getMinutes()).padStart(2, '0')
-  return `${year}-${month}-${date}T${hours}:${minutes}`
-}
-
-/** Single responsibility: wrap browser geolocation in a Promise. Returns { lat, lng } or rejects. */
-function getCurrentPositionAsync() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error('Geolocation not supported'))
-      return
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => resolve({
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-      }),
-      reject
-    )
-  })
-}
-
-/** Single responsibility: fetch city and state from coordinates via Nominatim. Returns { city, state }. */
-async function fetchReverseGeocode(lat, lng) {
-  try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
-    )
-    const data = await response.json()
-    if (data?.address) {
-      const city = data.address.city ?? data.address.town ?? data.address.village ?? data.address.municipality ?? data.address.county ?? data.address.state_district ?? null
-      const state = data.address.state ?? data.address.region ?? null
-      return { city, state }
-    }
-    return { city: null, state: null }
-  } catch (error) {
-    console.error('Reverse geocoding error:', error)
-    return { city: null, state: null }
-  }
-}
-
-/** Links to official browser help for enabling location permission (desktop and mobile). */
-const LOCATION_HELP_LINKS = [
-  { name: 'Chrome', url: 'https://support.google.com/chrome/answer/114662' },
-  { name: 'Safari on iPhone/iPad', url: 'https://support.apple.com/en-my/guide/safari/ibrw7f78f7fe/mac' },
-  { name: 'Safari on Mac', url: 'https://support.apple.com/guide/safari/ibrwe2159f50/mac' },
-  { name: 'Firefox', url: 'https://support.mozilla.org/en-US/kb/does-firefox-share-my-location-websites' },
-  { name: 'Microsoft Edge', url: 'https://support.microsoft.com/en-us/microsoft-edge/location-and-privacy-in-microsoft-edge-31b5d154-0b1b-90ef-e389-7c7d4ffe7b04' },
-]
-
-function escapeHtml(text) {
-  return String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
+import { getMinPickupTime, getDefaultPickupTime } from '@/utils/dateTimeUtils'
+import { usePickupLocation } from '@/hooks/usePickupLocation'
+import PickupLocationField from '@/components/PickupLocationField'
+import BagCountField from '@/components/BagCountField'
 
 export default function PembuangForm({ userId, onJobCreated, onClose }) {
   const [formData, setFormData] = useState({
@@ -97,123 +25,27 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
     address: '',
     bagCount: 1,
   })
-  const [currentLocationGps, setCurrentLocationGps] = useState({ lat: null, lng: null })
-  const [addressGps, setAddressGps] = useState({ lat: null, lng: null })
-  const [currentLocationCity, setCurrentLocationCity] = useState(null)
-  const [currentLocationState, setCurrentLocationState] = useState(null)
-  const [addressCity, setAddressCity] = useState(null)
-  const [addressState, setAddressState] = useState(null)
-  const [isAddressReverseGeocoding, setIsAddressReverseGeocoding] = useState(false)
-  const [locationMode, setLocationMode] = useState('current')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isGeocoding, setIsGeocoding] = useState(false)
-  const [isReverseGeocoding, setIsReverseGeocoding] = useState(false)
-  const [isGettingCurrentLocation, setIsGettingCurrentLocation] = useState(false)
-  const [locationError, setLocationError] = useState(null)
-  const [geocodingError, setGeocodingError] = useState(null)
-  
-  // Derive useCurrentLocation from locationMode
-  const useCurrentLocation = locationMode === 'current'
 
-  /** Single responsibility: apply coords to current-location state (GPS + mode + reverse geocode → city/state). */
-  const applyCurrentLocationCoords = useCallback(async (lat, lng) => {
-    setCurrentLocationGps({ lat, lng })
-    setLocationMode('current')
-    setLocationError(null)
-    setIsReverseGeocoding(true)
-    try {
-      const { city, state } = await fetchReverseGeocode(lat, lng)
-      setCurrentLocationCity(city)
-      setCurrentLocationState(state)
-    } finally {
-      setIsReverseGeocoding(false)
-    }
-  }, [])
-
-  /** Single responsibility: orchestrate request current location (get position → apply or show error). */
-  const requestCurrentLocation = useCallback((options = {}) => {
-    const { silent = false } = options
-    setIsGettingCurrentLocation(true)
-    setLocationError(null)
-    getCurrentPositionAsync()
-      .then(({ lat, lng }) => applyCurrentLocationCoords(lat, lng))
-      .catch((error) => {
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('Location service failed to return position (server/device issue):', error?.code, error?.message || '')
-        }
-        setLocationMode('different')
-        if (!silent) {
-          const linksHtml = LOCATION_HELP_LINKS
-            .map(({ name, url }) => `<li><a href="${url}" target="_blank" rel="noopener noreferrer" class="text-primary underline">${escapeHtml(name)}</a></li>`)
-            .join('')
-          Swal.fire({
-            icon: 'error',
-            title: 'Location unavailable',
-            html: `
-              <p class="text-left mb-3">Unable to get location. Please allow location access in your browser, then try again.</p>
-              <p class="text-left text-sm font-semibold mb-1">How to enable location:</p>
-              <ul class="text-left text-sm list-disc list-inside space-y-1 mb-0">${linksHtml}</ul>
-            `,
-            confirmButtonText: 'OK',
-            width: 'min(90vw, 420px)',
-          })
-        }
-      })
-      .finally(() => setIsGettingCurrentLocation(false))
-  }, [applyCurrentLocationCoords])
-
-  // Geocoding function using Nominatim API
-  const geocodeAddress = async (address) => {
-    if (!address.trim()) {
-      setGeocodingError('Please enter an address')
-      return
-    }
-
-    setIsGeocoding(true)
-    setGeocodingError(null)
-
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&countrycodes=my`
-      )
-      const data = await response.json()
-
-      if (data && data.length > 0) {
-        const location = data[0]
-        const lat = parseFloat(location.lat)
-        const lng = parseFloat(location.lon)
-        setAddressGps({ lat, lng })
-        setGeocodingError(null)
-        setAddressCity(null)
-        setAddressState(null)
-        setIsAddressReverseGeocoding(true)
-        try {
-          const { city, state } = await fetchReverseGeocode(lat, lng)
-          setAddressCity(city)
-          setAddressState(state)
-        } finally {
-          setIsAddressReverseGeocoding(false)
-        }
-      } else {
-        setGeocodingError('Address not found. Please try a more specific address.')
-        setAddressGps({ lat: null, lng: null })
-        setAddressCity(null)
-        setAddressState(null)
-      }
-    } catch (error) {
-      console.error('Geocoding error:', error)
-      setGeocodingError('Failed to geocode address. Please try again.')
-      setAddressGps({ lat: null, lng: null })
-      setAddressCity(null)
-      setAddressState(null)
-    } finally {
-      setIsGeocoding(false)
-    }
-  }
-
-  useEffect(() => {
-    requestCurrentLocation({ silent: true })
-  }, [requestCurrentLocation])
+  const {
+    locationMode,
+    setLocationMode,
+    currentLocationGps,
+    addressGps,
+    currentLocationCity,
+    currentLocationState,
+    addressCity,
+    addressState,
+    isGettingCurrentLocation,
+    isReverseGeocoding,
+    isAddressReverseGeocoding,
+    isGeocoding,
+    locationError,
+    geocodingError,
+    requestCurrentLocation,
+    geocodeAddress,
+    resetForNewJobWithCurrentGps,
+  } = usePickupLocation()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -301,11 +133,7 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
         address: '',
         bagCount: 1,
       })
-      setAddressGps({ lat: null, lng: null })
-      setAddressCity(null)
-      setAddressState(null)
-      setLocationMode(currentLocationGps.lat ? 'current' : 'different')
-      setGeocodingError(null)
+      resetForNewJobWithCurrentGps(!!currentLocationGps?.lat)
 
       if (onJobCreated) onJobCreated(jobId)
     } catch (error) {
@@ -393,180 +221,31 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
             />
           </div>
 
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-3">
-              <MapPin className="w-4 h-4" />
-              Pickup Location
-            </label>
-            
-            {/* Location Selection Radio Buttons */}
-            <div className="flex gap-2 mb-4">
-              <label className="flex items-center gap-3 p-3 rounded-lg border-2 transition-all flex-1 cursor-pointer hover:bg-gray-50">
-                <input
-                  type="radio"
-                  name="locationMode"
-                  value="current"
-                  checked={locationMode === 'current'}
-                  onChange={() => {
-                    setLocationMode('current')
-                    if (!currentLocationGps.lat && navigator.geolocation) {
-                      requestCurrentLocation()
-                    }
-                  }}
-                  className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
-                />
-                <span className="text-sm text-gray-700 font-medium">Current location</span>
-              </label>
-              
-              <label className="flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all hover:bg-gray-50 flex-1">
-                <input
-                  type="radio"
-                  name="locationMode"
-                  value="different"
-                  checked={locationMode === 'different'}
-                  onChange={(e) => setLocationMode('different')}
-                  className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
-                />
-                <span className="text-sm text-gray-700 font-medium">Different location</span>
-              </label>
-            </div>
-            {!currentLocationGps.lat && locationMode === 'current' && (
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <p className="text-xs text-amber-600">Location not available.</p>
-                <button
-                  type="button"
-                  onClick={requestCurrentLocation}
-                  disabled={isGettingCurrentLocation}
-                  className="px-3 py-1.5 text-xs font-semibold bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isGettingCurrentLocation ? 'Getting location...' : 'Get my location'}
-                </button>
-              </div>
-            )}
-            
-            {/* Address Field - Only shown when "different location" is selected */}
-            {locationMode === 'different' && (
-              <>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Address
-                </label>
-                <textarea
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  required={locationMode === 'different'}
-                  rows={1}
-                  placeholder="Enter full address..."
-                  className="w-full px-4 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                />
-                <div className="mt-2 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => geocodeAddress(formData.address)}
-                    disabled={isGeocoding || !formData.address.trim()}
-                    className="px-4 py-2 text-sm font-semibold bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isGeocoding ? 'Searching...' : 'Get GPS from Address'}
-                  </button>
-                </div>
-                {geocodingError && (
-                  <p className="text-xs text-red-500 mt-1">{geocodingError}</p>
-                )}
-              </>
-            )}
-            
-            {locationError && locationMode === 'current' && (
-              <p className="text-xs text-amber-600 mt-1">{locationError}</p>
-            )}
-            
-            {/* GPS Display Section */}
-            <div className="mt-3 space-y-2">
-              {/* Current Location GPS - Show when current location mode is selected */}
-              {locationMode === 'current' && currentLocationGps.lat && (
-                <div className="p-3 rounded-lg border-2 border-primary bg-primary/5">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-semibold text-gray-700">Current Location GPS</p>
-                      <a
-                        href={`https://www.google.com/maps?q=${currentLocationGps.lat},${currentLocationGps.lng}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-primary underline hover:text-primary-dark font-semibold"
-                      >
-                        {currentLocationGps.lat.toFixed(4)}, {currentLocationGps.lng.toFixed(4)}
-                        {isReverseGeocoding && ', Loading...'}
-                        {!isReverseGeocoding && currentLocationCity && `, ${currentLocationCity}`}
-                        {!isReverseGeocoding && !currentLocationCity && currentLocationState && `, ${currentLocationState}`}
-                      </a>
-                    </div>
-                    <span className="text-xs bg-primary text-white px-2 py-1 rounded-full font-semibold">
-                      Active
-                    </span>
-                  </div>
-                </div>
-              )}
-              
-              {/* Address GPS - Show when different location mode is selected and geocoded */}
-              {locationMode === 'different' && addressGps.lat && (
-                <div className="p-3 rounded-lg border-2 border-primary bg-primary/5">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-semibold text-gray-700">Address GPS</p>
-                      <a
-                        href={`https://www.google.com/maps?q=${addressGps.lat},${addressGps.lng}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-primary underline hover:text-primary-dark font-semibold"
-                      >
-                        {addressGps.lat.toFixed(4)}, {addressGps.lng.toFixed(4)}
-                        {isAddressReverseGeocoding && ', Loading...'}
-                        {!isAddressReverseGeocoding && addressCity && `, ${addressCity}`}
-                        {!isAddressReverseGeocoding && !addressCity && addressState && `, ${addressState}`}
-                      </a>
-                    </div>
-                    <span className="text-xs bg-primary text-white px-2 py-1 rounded-full font-semibold">
-                      Active
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <PickupLocationField
+            locationMode={locationMode}
+            setLocationMode={setLocationMode}
+            currentLocationGps={currentLocationGps}
+            addressGps={addressGps}
+            currentLocationCity={currentLocationCity}
+            currentLocationState={currentLocationState}
+            addressCity={addressCity}
+            addressState={addressState}
+            isGettingCurrentLocation={isGettingCurrentLocation}
+            isReverseGeocoding={isReverseGeocoding}
+            isAddressReverseGeocoding={isAddressReverseGeocoding}
+            isGeocoding={isGeocoding}
+            locationError={locationError}
+            geocodingError={geocodingError}
+            requestCurrentLocation={requestCurrentLocation}
+            geocodeAddress={geocodeAddress}
+            address={formData.address}
+            onAddressChange={(value) => setFormData((prev) => ({ ...prev, address: value }))}
+          />
 
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <Package className="w-4 h-4" />
-              Number of Bags
-            </label>
-            <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, bagCount: clampBagCount(formData.bagCount - 1) })}
-                className="w-10 h-10 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
-              >
-                −
-              </button>
-              <input
-                type="number"
-                min={VALIDATION.BAG_COUNT_MIN}
-                max={VALIDATION.BAG_COUNT_MAX}
-                value={formData.bagCount}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value) || VALIDATION.BAG_COUNT_MIN
-                  const clamped = clampBagCount(value)
-                  setFormData({ ...formData, bagCount: clamped })
-                }}
-                required
-                className="w-20 h-10 px-3 text-center rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary font-bold text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <button
-                type="button"
-                onClick={() => setFormData({ ...formData, bagCount: clampBagCount(formData.bagCount + 1) })}
-                className="w-10 h-10 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
-              >
-                +
-              </button>
-            </div>
-          </div>
+          <BagCountField
+            value={formData.bagCount}
+            onChange={(bagCount) => setFormData((prev) => ({ ...prev, bagCount }))}
+          />
 
           <div className="bg-gray-50 rounded-xl p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
