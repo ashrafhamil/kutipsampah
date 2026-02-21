@@ -28,9 +28,10 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Feedback collection - authenticated users can read and create (no update/delete for MVP)
+    // Feedback collection - read allowed without auth (so server can load list for /feedback page); create requires auth
     match /feedback/{feedbackId} {
-      allow read, create: if request.auth != null;
+      allow read: if true;
+      allow create: if request.auth != null;
     }
   }
 }

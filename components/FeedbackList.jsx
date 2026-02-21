@@ -2,26 +2,28 @@
 
 import { useEffect, useState } from 'react'
 import { MessageSquare } from 'lucide-react'
-import { getFeedbackList } from '@/services/feedbackService'
-import { formatTimestampForDisplay } from '@/utils/jobUtils'
+import { getFeedbackList, getFeedbackItemDateDisplay } from '@/services/feedbackService'
 
-function useFeedbackList() {
-  const [items, setItems] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+function useFeedbackList(initialData, initialError) {
+  const hasInitialData = Array.isArray(initialData)
+
+  const [items, setItems] = useState(hasInitialData ? initialData : [])
+  const [loading, setLoading] = useState(!hasInitialData)
+  const [error, setError] = useState(initialError ?? null)
 
   useEffect(() => {
+    if (hasInitialData) return
     getFeedbackList()
       .then(setItems)
       .catch((err) => setError(err?.message || 'Failed to load feedback'))
       .finally(() => setLoading(false))
-  }, [])
+  }, [hasInitialData])
 
   return { items, loading, error }
 }
 
-export default function FeedbackList() {
-  const { items, loading, error } = useFeedbackList()
+export default function FeedbackList({ initialData, initialError }) {
+  const { items, loading, error } = useFeedbackList(initialData, initialError)
 
   if (loading) {
     return (
@@ -65,7 +67,7 @@ export default function FeedbackList() {
           <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
             <span>{item.name ? `— ${item.name}` : '— Anonymous'}</span>
             <span>·</span>
-            <span>{formatTimestampForDisplay(item.createdAt)}</span>
+            <span>{getFeedbackItemDateDisplay(item)}</span>
           </div>
         </div>
       ))}

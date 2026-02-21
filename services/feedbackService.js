@@ -1,5 +1,6 @@
 import { collection, addDoc, query, orderBy, getDocs, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
+import { formatTimestampForDisplay } from '@/utils/jobUtils'
 
 /**
  * Validates and normalizes feedback payload. Single responsibility: validate and return normalized payload.
@@ -65,4 +66,26 @@ export const getFeedbackList = async () => {
     console.error('Error fetching feedback:', error)
     throw error
   }
+}
+
+/**
+ * Serializes a feedback list for server-to-client (JSON-safe createdAt + preformatted date string). Single responsibility: serialize for SSR/hydration.
+ * @param {Array<{ id: string, name: string | null, message: string, createdAt: object }>} rawItems
+ * @returns {Array<{ id: string, name: string | null, message: string, createdAt: number|null, createdAtDisplay: string }>}
+ */
+export const serializeFeedbackListForClient = (rawItems) => {
+  return rawItems.map((item) => ({
+    ...item,
+    createdAt: item.createdAt?.toMillis?.() ?? item.createdAt ?? null,
+    createdAtDisplay: formatTimestampForDisplay(item.createdAt),
+  }))
+}
+
+/**
+ * Returns the date display string for a feedback item (preformatted or computed). Single responsibility: one place for "how to show item date".
+ * @param {{ createdAt?: unknown, createdAtDisplay?: string }} item
+ * @returns {string}
+ */
+export const getFeedbackItemDateDisplay = (item) => {
+  return item.createdAtDisplay ?? formatTimestampForDisplay(item.createdAt)
 }
