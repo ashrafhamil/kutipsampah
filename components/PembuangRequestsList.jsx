@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { MapPin, Clock, Package, DollarSign, Inbox } from 'lucide-react'
 import { subscribeToAllJobs } from '@/services/jobService'
 import { JOB_STATUS } from '@/constants/jobConstants'
+import { sortJobsByStatusAndDate } from '@/utils/jobUtils'
 
 export default function PembuangRequestsList({ userId, onJobClick }) {
   const [jobs, setJobs] = useState([])
@@ -11,12 +12,7 @@ export default function PembuangRequestsList({ userId, onJobClick }) {
 
   useEffect(() => {
     const unsubscribe = subscribeToAllJobs((updatedJobs) => {
-      const sorted = [...updatedJobs].sort((a, b) => {
-        if (!a.createdAt || !b.createdAt) return 0
-        const aTime = a.createdAt.toMillis ? a.createdAt.toMillis() : a.createdAt
-        const bTime = b.createdAt.toMillis ? b.createdAt.toMillis() : b.createdAt
-        return bTime - aTime
-      })
+      const sorted = sortJobsByStatusAndDate(updatedJobs)
       setJobs(sorted)
       setLoading(false)
     })
