@@ -33,6 +33,12 @@ service cloud.firestore {
       allow read: if true;
       allow create: if request.auth != null;
     }
+
+    // Stats: visitor count - anyone can read; only authenticated clients can write (increment)
+    match /stats/visitorCount {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
   }
 }
 ```
@@ -77,6 +83,16 @@ service cloud.firestore {
   name: string | null (optional),
   message: string (required),
   createdAt: Timestamp
+}
+```
+
+### Stats / visitor count (`/stats/visitorCount`)
+
+Single document holding the main-page visitor count. Anyone can read; only authenticated users (including anonymous) can write. You can create this document manually in Firebase Console with `total: 0` if desired; otherwise the first client increment will create it.
+
+```javascript
+{
+  total: number  // incremented by 1 each time the main page (/) is loaded
 }
 ```
 

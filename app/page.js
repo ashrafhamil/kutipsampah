@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Swal from 'sweetalert2'
 import { Edit3, UserCheck, CheckCircle } from 'lucide-react'
@@ -15,9 +15,29 @@ import CompletedJobsList from '@/components/CompletedJobsList'
 import JobDrawer from '@/components/JobDrawer'
 import Footer from '@/components/Footer'
 import { USER_ROLES } from '@/constants/jobConstants'
+import {
+  getCachedVisitorCount,
+  setCachedVisitorCount,
+  syncVisitorCount,
+} from '@/services/visitorCountService'
 
 function KutipSampahApp() {
   const { user } = useAuth()
+  const [visitorCount, setVisitorCount] = useState(null)
+
+  useEffect(() => {
+    const cached = getCachedVisitorCount()
+    if (cached != null) setVisitorCount(cached)
+
+    /** Single responsibility: apply a fresh count to UI and cache. */
+    function applyFreshCount(count) {
+      setVisitorCount(count)
+      setCachedVisitorCount(count)
+    }
+
+    syncVisitorCount(applyFreshCount)
+  }, [])
+
   const [currentRole, setCurrentRole] = useState(USER_ROLES.PEMBUANG)
   const [selectedJob, setSelectedJob] = useState(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
@@ -118,7 +138,7 @@ function KutipSampahApp() {
                   </ol>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
                   <h2 className="text-lg font-semibold text-gray-800 mb-3">Learn more</h2>
                   <ul className="space-y-2 text-sm">
                     <li>
@@ -140,6 +160,13 @@ function KutipSampahApp() {
                       <span className="text-gray-500"> — Who it's for and how we compare</span>
                     </li>
                   </ul>
+                </div>
+
+                <div className="bg-primary/5 rounded-2xl p-6 shadow-sm border border-primary/10 mb-6">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-3">Visitors</h2>
+                  <p className="text-gray-600 text-sm">
+                    {visitorCount !== null ? `${visitorCount.toLocaleString()} visitors` : 'Loading...'}
+                  </p>
                 </div>
               </div>
               {showForm && (
