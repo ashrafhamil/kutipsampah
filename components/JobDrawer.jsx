@@ -185,10 +185,11 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
 
   if (!isOpen || !currentJob) return null
 
-  const isAccepted = currentJob.status === JOB_STATUS.COLLECTING && currentJob.collectorId === userId
-  const isCompleted = currentJob.status === JOB_STATUS.DONE && currentJob.collectorId === userId
+  // MVP: Remove userId checks - anyone can accept/complete jobs
+  const isAccepted = currentJob.status === JOB_STATUS.COLLECTING
+  const isCompleted = currentJob.status === JOB_STATUS.DONE
   const canAccept = currentJob.status === JOB_STATUS.PENDING && userRole === 'PENGUTIP'
-  const canComplete = isAccepted && currentJob.status === JOB_STATUS.COLLECTING
+  const canComplete = currentJob.status === JOB_STATUS.COLLECTING
   // Show "Go to My Jobs" button if job was just accepted from pending tab
   const showGoToMyJobs = isAccepted && activeTab === 'pending'
 
@@ -304,7 +305,7 @@ export default function JobDrawer({ job, isOpen, onClose, userId, userRole, acti
           {isAccepted && !isCompleted && (
             <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-green-600" />
-              <span className="text-green-700 font-semibold">You have accepted this job</span>
+              <span className="text-green-700 font-semibold">This job is being collected</span>
             </div>
           )}
 

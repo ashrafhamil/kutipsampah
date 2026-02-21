@@ -270,10 +270,7 @@ export const completeJob = async (jobId, requesterId, collectorId, success = tru
         throw new Error('Job cannot be completed')
       }
 
-      if (jobData.collectorId !== collectorId) {
-        throw new Error('Unauthorized collector')
-      }
-
+      // MVP: Remove collectorId validation - anyone can complete jobs
       // Update job status - DONE for success, back to PENDING for cancel
       // Explicitly preserve requesterId to ensure data consistency
       const updateData = {
