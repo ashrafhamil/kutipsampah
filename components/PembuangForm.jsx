@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Clock, MapPin, Package, DollarSign, X, User, Phone } from 'lucide-react'
 import Swal from 'sweetalert2'
 import { createJob } from '@/services/jobService'
@@ -36,6 +36,42 @@ const getDefaultPickupTime = () => {
   return `${year}-${month}-${date}T${hours}:${minutes}`
 }
 
+/** Single responsibility: wrap browser geolocation in a Promise. Returns { lat, lng } or rejects. */
+function getCurrentPositionAsync() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Geolocation not supported'))
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => resolve({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      }),
+      reject
+    )
+  })
+}
+
+/** Single responsibility: fetch city and state from coordinates via Nominatim. Returns { city, state }. */
+async function fetchReverseGeocode(lat, lng) {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+    )
+    const data = await response.json()
+    if (data?.address) {
+      const city = data.address.city ?? data.address.town ?? data.address.village ?? data.address.municipality ?? data.address.county ?? data.address.state_district ?? null
+      const state = data.address.state ?? data.address.region ?? null
+      return { city, state }
+    }
+    return { city: null, state: null }
+  } catch (error) {
+    console.error('Reverse geocoding error:', error)
+    return { city: null, state: null }
+  }
+}
+
 export default function PembuangForm({ userId, onJobCreated, onClose }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -55,43 +91,46 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isGeocoding, setIsGeocoding] = useState(false)
   const [isReverseGeocoding, setIsReverseGeocoding] = useState(false)
+  const [isGettingCurrentLocation, setIsGettingCurrentLocation] = useState(false)
   const [locationError, setLocationError] = useState(null)
   const [geocodingError, setGeocodingError] = useState(null)
   
   // Derive useCurrentLocation from locationMode
   const useCurrentLocation = locationMode === 'current'
 
-  // Reverse geocoding function to get city and state name from GPS coordinates
-  const reverseGeocode = async (lat, lng) => {
+  /** Single responsibility: apply coords to current-location state (GPS + mode + reverse geocode → city/state). */
+  const applyCurrentLocationCoords = useCallback(async (lat, lng) => {
+    setCurrentLocationGps({ lat, lng })
+    setLocationMode('current')
+    setLocationError(null)
+    setIsReverseGeocoding(true)
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
-      )
-      const data = await response.json()
-      
-      if (data && data.address) {
-        // Try to get city name from various possible fields
-        const city = data.address.city || 
-                    data.address.town || 
-                    data.address.village || 
-                    data.address.municipality ||
-                    data.address.county ||
-                    data.address.state_district ||
-                    null
-        
-        // Get state name as fallback
-        const state = data.address.state || 
-                     data.address.region ||
-                     null
-        
-        return { city, state }
-      }
-      return { city: null, state: null }
-    } catch (error) {
-      console.error('Reverse geocoding error:', error)
-      return { city: null, state: null }
+      const { city, state } = await fetchReverseGeocode(lat, lng)
+      setCurrentLocationCity(city)
+      setCurrentLocationState(state)
+    } finally {
+      setIsReverseGeocoding(false)
     }
-  }
+  }, [])
+
+  /** Single responsibility: orchestrate request current location (get position → apply or show error). */
+  const requestCurrentLocation = useCallback((options = {}) => {
+    const { silent = false } = options
+    setIsGettingCurrentLocation(true)
+    setLocationError(null)
+    getCurrentPositionAsync()
+      .then(({ lat, lng }) => applyCurrentLocationCoords(lat, lng))
+      .catch((error) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Location service failed to return position (server/device issue):', error?.code, error?.message || '')
+        }
+        setLocationMode('different')
+        if (!silent) {
+          Swal.fire({ icon: 'error', title: 'Location unavailable', text: 'Unable to get location. Please allow location access in browser settings or use a different location.' })
+        }
+      })
+      .finally(() => setIsGettingCurrentLocation(false))
+  }, [applyCurrentLocationCoords])
 
   // Geocoding function using Nominatim API
   const geocodeAddress = async (address) => {
@@ -119,9 +158,9 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
         setAddressState(null)
         setIsAddressReverseGeocoding(true)
         try {
-          const rev = await reverseGeocode(lat, lng)
-          setAddressCity(rev.city)
-          setAddressState(rev.state)
+          const { city, state } = await fetchReverseGeocode(lat, lng)
+          setAddressCity(city)
+          setAddressState(state)
         } finally {
           setIsAddressReverseGeocoding(false)
         }
@@ -143,34 +182,8 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
   }
 
   useEffect(() => {
-    // Auto-fill GPS coordinates for current location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude
-          const lng = position.coords.longitude
-          setCurrentLocationGps({ lat, lng })
-          setLocationMode('current')
-          setLocationError(null)
-          
-          // Get city and state name from reverse geocoding
-          setIsReverseGeocoding(true)
-          const location = await reverseGeocode(lat, lng)
-          setCurrentLocationCity(location.city)
-          setCurrentLocationState(location.state)
-          setIsReverseGeocoding(false)
-        },
-        (error) => {
-          if (process.env.NODE_ENV === 'development') {
-            console.warn('Location service failed to return position (server/device issue):', error?.code, error?.message || '')
-          }
-          setLocationMode('different')
-        }
-      )
-    } else {
-      setLocationMode('different')
-    }
-  }, [])
+    requestCurrentLocation({ silent: true })
+  }, [requestCurrentLocation])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -358,49 +371,18 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
             
             {/* Location Selection Radio Buttons */}
             <div className="flex gap-2 mb-4">
-              <label className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all flex-1 ${
-                currentLocationGps.lat 
-                  ? 'cursor-pointer hover:bg-gray-50' 
-                  : 'cursor-not-allowed opacity-50'
-              }`}>
+              <label className="flex items-center gap-3 p-3 rounded-lg border-2 transition-all flex-1 cursor-pointer hover:bg-gray-50">
                 <input
                   type="radio"
                   name="locationMode"
                   value="current"
                   checked={locationMode === 'current'}
-                  onChange={(e) => {
-                    if (currentLocationGps.lat) {
-                      setLocationMode('current')
-                    } else {
-                      // Try to get location again when user selects it
-                      if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(
-                          async (position) => {
-                            const lat = position.coords.latitude
-                            const lng = position.coords.longitude
-                            setCurrentLocationGps({ lat, lng })
-                            setLocationMode('current')
-                            setLocationError(null)
-                            
-                            // Get city and state name from reverse geocoding
-                            setIsReverseGeocoding(true)
-                            const location = await reverseGeocode(lat, lng)
-                            setCurrentLocationCity(location.city)
-                            setCurrentLocationState(location.state)
-                            setIsReverseGeocoding(false)
-                          },
-                          (error) => {
-                            if (process.env.NODE_ENV === 'development') {
-                              console.warn('Location service failed to return position (server/device issue):', error?.code, error?.message || '')
-                            }
-                            Swal.fire({ icon: 'error', title: 'Location unavailable', text: 'Unable to get location. Please allow location access in browser settings or use a different location.' })
-                            setLocationMode('different')
-                          }
-                        )
-                      }
+                  onChange={() => {
+                    setLocationMode('current')
+                    if (!currentLocationGps.lat && navigator.geolocation) {
+                      requestCurrentLocation()
                     }
                   }}
-                  disabled={!currentLocationGps.lat}
                   className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
                 />
                 <span className="text-sm text-gray-700 font-medium">Current location</span>
@@ -419,7 +401,17 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
               </label>
             </div>
             {!currentLocationGps.lat && locationMode === 'current' && (
-              <p className="text-xs text-amber-600 mb-1">(Location not available)</p>
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <p className="text-xs text-amber-600">Location not available.</p>
+                <button
+                  type="button"
+                  onClick={requestCurrentLocation}
+                  disabled={isGettingCurrentLocation}
+                  className="px-3 py-1.5 text-xs font-semibold bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isGettingCurrentLocation ? 'Getting location...' : 'Get my location'}
+                </button>
+              </div>
             )}
             
             {/* Address Field - Only shown when "different location" is selected */}
