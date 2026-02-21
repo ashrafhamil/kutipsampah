@@ -48,19 +48,19 @@ export default function PengutipStats({ userId }) {
   return (
     <div className="bg-gray-50 border-b border-gray-200">
       <div className="max-w-md mx-auto">
-        <div className="grid grid-cols-2 gap-3 p-4">
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-2 mb-2">
-            <CheckCircle className="w-4 h-4 text-green-600" />
-            <span className="text-xs text-gray-600 font-semibold">Total Completed</span>
+        <div className="grid grid-cols-2 gap-2 p-3">
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-1.5 mb-2">
+            <CheckCircle className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
+            <span className="text-xs text-gray-600 font-semibold min-w-0 truncate" title="Total Completed">Total Completed</span>
           </div>
-          <p className="text-2xl font-bold text-gray-800">{stats.totalCompleted}</p>
+          <p className="text-2xl font-bold text-green-600">{stats.totalCompleted}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-2 mb-2">
-            <DollarSign className="w-4 h-4 text-primary" />
-            <span className="text-xs text-gray-600 font-semibold">Total Earned</span>
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-1.5 mb-2">
+            <DollarSign className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+            <span className="text-xs text-gray-600 font-semibold min-w-0 truncate" title="Total Earned">Total Earned</span>
           </div>
           <p className="text-2xl font-bold text-primary">RM {stats.totalEarned}</p>
         </div>

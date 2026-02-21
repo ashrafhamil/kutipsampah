@@ -81,7 +81,7 @@ export const getStatusLabel = (status) => {
     case JOB_STATUS.COLLECTING:
       return 'Collecting'
     case JOB_STATUS.DONE:
-      return 'Done'
+      return 'Completed'
     default:
       return status || '—'
   }

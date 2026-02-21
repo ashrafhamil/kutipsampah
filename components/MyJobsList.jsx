@@ -258,10 +258,10 @@ export default function MyJobsList({ userId, onJobClick }) {
       <div className="h-full w-full overflow-y-auto bg-gray-50">
         <div className="bg-gray-50 pb-2 border-b border-gray-200">
           <div className="max-w-md mx-auto">
-            <div className="p-4">
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+            <div className="p-3">
+              <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="w-3.5 h-3.5 bg-gray-200 rounded animate-pulse"></div>
                   <div className="h-3 w-20 bg-gray-200 rounded animate-pulse"></div>
                 </div>
                 <div className="h-8 w-16 bg-gray-200 rounded animate-pulse"></div>
@@ -306,13 +306,13 @@ export default function MyJobsList({ userId, onJobClick }) {
       <div className="h-full w-full overflow-y-auto bg-gray-50">
         <div className="bg-gray-50 pb-2 border-b border-gray-200">
           <div className="max-w-md mx-auto">
-            <div className="p-4">
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <div className="flex items-center gap-2 mb-2">
-                  <Briefcase className="w-4 h-4 text-primary" />
-                  <span className="text-xs text-gray-600 font-semibold">My Jobs</span>
+            <div className="p-3">
+              <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Briefcase className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                  <span className="text-xs text-gray-600 font-semibold min-w-0 truncate" title="My Jobs">My Jobs</span>
                 </div>
-                <p className="text-2xl font-bold text-gray-800">0</p>
+                <p className="text-2xl font-bold text-blue-600">0</p>
               </div>
             </div>
           </div>
@@ -334,13 +334,13 @@ export default function MyJobsList({ userId, onJobClick }) {
     <div className="h-full w-full overflow-y-auto bg-gray-50">
       <div className="bg-gray-50 border-b border-gray-200">
         <div className="max-w-md mx-auto">
-          <div className="p-4">
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-2 mb-2">
-                <Briefcase className="w-4 h-4 text-primary" />
-                <span className="text-xs text-gray-600 font-semibold">My Jobs</span>
+          <div className="p-3">
+            <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+              <div className="flex items-center gap-1.5 mb-2">
+                <Briefcase className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                <span className="text-xs text-gray-600 font-semibold min-w-0 truncate" title="My Jobs">My Jobs</span>
               </div>
-              <p className="text-2xl font-bold text-gray-800">{jobs.length}</p>
+              <p className="text-2xl font-bold text-blue-600">{jobs.length}</p>
             </div>
           </div>
         </div>
