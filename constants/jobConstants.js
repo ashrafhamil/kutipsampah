@@ -10,3 +10,12 @@ export const USER_ROLES = {
   PEMBUANG: 'PEMBUANG',
   PENGUTIP: 'PENGUTIP',
 }
+
+// Validation constants
+export const VALIDATION = {
+  BAG_COUNT_MIN: 1,
+  BAG_COUNT_MAX: 100,
+  NAME_MAX_LENGTH: 100,
+  PHONE_MIN_DIGITS: 7,
+  PHONE_MAX_DIGITS: 12,
+}

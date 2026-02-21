@@ -4,7 +4,14 @@ import { useState, useEffect } from 'react'
 import { Clock, MapPin, Package, DollarSign, X, User, Phone } from 'lucide-react'
 import Swal from 'sweetalert2'
 import { createJob } from '@/services/jobService'
-import { PRICE_PER_BAG } from '@/constants/jobConstants'
+import { PRICE_PER_BAG, VALIDATION } from '@/constants/jobConstants'
+import { 
+  validateName, 
+  validatePhoneNumber, 
+  validateBagCount,
+  clampBagCount,
+  truncateName
+} from '@/utils/validation'
 
 // Helper: current date/time in datetime-local format (YYYY-MM-DDTHH:MM) for min attribute
 const getMinPickupTime = () => {
@@ -168,6 +175,27 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
+    // Validation: Name
+    const nameValidation = validateName(formData.name)
+    if (!nameValidation.valid) {
+      Swal.fire({ icon: 'warning', title: 'Invalid name', text: nameValidation.message })
+      return
+    }
+
+    // Validation: Phone number
+    const phoneValidation = validatePhoneNumber(formData.phoneNumber)
+    if (!phoneValidation.valid) {
+      Swal.fire({ icon: 'warning', title: 'Invalid phone number', text: phoneValidation.message })
+      return
+    }
+
+    // Validation: Bag count
+    const bagCountValidation = validateBagCount(formData.bagCount)
+    if (!bagCountValidation.valid) {
+      Swal.fire({ icon: 'warning', title: 'Invalid bag count', text: bagCountValidation.message })
+      return
+    }
+
     // Validation: pickup time must not be in the past
     if (new Date(formData.pickupTime) <= new Date()) {
       Swal.fire({ icon: 'warning', title: 'Invalid time', text: 'Please choose a future date and time for pickup.' })
@@ -214,12 +242,12 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
 
       const jobId = await createJob({
         requesterId: userId,
-        name: formData.name,
-        phoneNumber: formData.phoneNumber,
+        name: truncateName(formData.name.trim()),
+        phoneNumber: phoneValidation.cleaned || formData.phoneNumber.trim(),
         address: addressToSubmit,
         gps: selectedGps,
         pickupTime: formData.pickupTime,
-        bagCount: formData.bagCount,
+        bagCount: clampBagCount(formData.bagCount),
       })
 
       // Reset form (but keep default name and phoneNumber)
@@ -280,9 +308,13 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) => {
+                  const value = truncateName(e.target.value)
+                  setFormData({ ...formData, name: value })
+                }}
                 placeholder="Jebon"
                 required
+                maxLength={VALIDATION.NAME_MAX_LENGTH}
                 className="w-full h-12 px-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
@@ -486,25 +518,27 @@ export default function PembuangForm({ userId, onJobCreated, onClose }) {
             <div className="flex items-center gap-4">
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, bagCount: Math.max(1, formData.bagCount - 1) })}
+                onClick={() => setFormData({ ...formData, bagCount: clampBagCount(formData.bagCount - 1) })}
                 className="w-10 h-10 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
               >
                 −
               </button>
               <input
                 type="number"
-                min="1"
+                min={VALIDATION.BAG_COUNT_MIN}
+                max={VALIDATION.BAG_COUNT_MAX}
                 value={formData.bagCount}
                 onChange={(e) => {
-                  const value = parseInt(e.target.value) || 1
-                  setFormData({ ...formData, bagCount: Math.max(1, value) })
+                  const value = parseInt(e.target.value) || VALIDATION.BAG_COUNT_MIN
+                  const clamped = clampBagCount(value)
+                  setFormData({ ...formData, bagCount: clamped })
                 }}
                 required
                 className="w-20 h-10 px-3 text-center rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary font-bold text-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, bagCount: formData.bagCount + 1 })}
+                onClick={() => setFormData({ ...formData, bagCount: clampBagCount(formData.bagCount + 1) })}
                 className="w-10 h-10 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
               >
                 +
