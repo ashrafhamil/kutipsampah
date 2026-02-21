@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
-import { Search, X, Navigation, Map, Satellite, Mountain } from 'lucide-react'
+import { Search, X, Navigation, Map, Satellite, Route } from 'lucide-react'
 import Swal from 'sweetalert2'
 import { subscribeToPendingJobs } from '@/services/jobService'
 
@@ -24,7 +24,7 @@ export default function PengutipMap({ onMarkerClick }) {
   const [isSearching, setIsSearching] = useState(false)
   const [mapCenter, setMapCenter] = useState(null)
   const [isGettingLocation, setIsGettingLocation] = useState(false)
-  const [mapLayerType, setMapLayerType] = useState('map') // 'map' | 'satellite' | 'terrain'
+  const [mapLayerType, setMapLayerType] = useState('transport') // 'map' | 'satellite' | 'transport'
   const [hasRealUserLocation, setHasRealUserLocation] = useState(false) // Track if user location is real (not default)
   const searchTimeoutRef = useRef(null)
 
@@ -159,6 +159,17 @@ export default function PengutipMap({ onMarkerClick }) {
       {/* Layer Switcher Button */}
       <div className="absolute top-4 right-4 z-[30] flex flex-col gap-2">
         <button
+          onClick={() => setMapLayerType('transport')}
+          className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-colors ${
+            mapLayerType === 'transport'
+              ? 'bg-primary text-white'
+              : 'bg-white text-gray-700 hover:bg-gray-50'
+          }`}
+          aria-label="Transport view"
+        >
+          <Route className="w-5 h-5" />
+        </button>
+        <button
           onClick={() => setMapLayerType('map')}
           className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-colors ${
             mapLayerType === 'map'
@@ -179,17 +190,6 @@ export default function PengutipMap({ onMarkerClick }) {
           aria-label="Satellite view"
         >
           <Satellite className="w-5 h-5" />
-        </button>
-        <button
-          onClick={() => setMapLayerType('terrain')}
-          className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-colors ${
-            mapLayerType === 'terrain'
-              ? 'bg-primary text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
-          }`}
-          aria-label="Terrain view"
-        >
-          <Mountain className="w-5 h-5" />
         </button>
       </div>
 
@@ -262,11 +262,11 @@ export default function PengutipMap({ onMarkerClick }) {
             attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
           />
         )}
-        {mapLayerType === 'terrain' && (
+        {mapLayerType === 'transport' && (
           <TileLayer
-            key="terrain-layer"
-            url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
+            key="transport-layer"
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           />
         )}
         <UserLocationMarker position={userLocation} hasRealLocation={hasRealUserLocation} />
