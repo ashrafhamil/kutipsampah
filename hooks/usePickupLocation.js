@@ -40,10 +40,18 @@ export function usePickupLocation() {
     getCurrentPositionAsync()
       .then(({ lat, lng }) => applyCurrentLocationCoords(lat, lng))
       .catch((error) => {
+        const code = error?.code
+        if (code === 1) {
+          setLocationError('Location access was denied. Allow it in your browser and click "Get my location" again, or choose "Different location" to enter an address.')
+        } else if (code === 2 || code === 3) {
+          setLocationError('Location unavailable or timed out. Try again or use "Different location".')
+        } else {
+          setLocationError('Could not get location. Try "Get my location" again or use "Different location".')
+        }
         if (process.env.NODE_ENV === 'development') {
           console.warn('Location service failed to return position (server/device issue):', error?.code, error?.message || '')
         }
-        setLocationMode('different')
+        // Keep locationMode 'current' so the inline locationError is visible; user can retry or switch to Different location
         if (!silent) showLocationUnavailableSwal()
       })
       .finally(() => setIsGettingCurrentLocation(false))
