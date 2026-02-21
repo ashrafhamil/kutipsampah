@@ -41,7 +41,7 @@ export default function AboutPage() {
           Rasa nak je offer, pakcik, nak saya tolong buangkan? Upah 2 rengget. Ok dah. Maleh cerita panjang. Senang cerita gitu le. Maleh buang sampah? Upah je orang utk buangkan. Macam Grab tapi utk buang sampah. Mcm Lalamove tp utk buang sampah. Gitu. Takyah mehe2.
         </p>
         <p className="text-gray-600 mb-4 text-justify">
-          Benda ni tak praktikal utk tmpt yg ada lori sampah kutip. Ini utk kampung2 yg lori sampah tak kutip, nak hantar ke tong sampah besar jauh yakmat, utk org duduk rumah tinggi yg maleh turun gi buang sampah. Yg rasa macam, baik aku bayar 2 rengget, masalah selesai. Kalo skali turun dapat tlg buang 10 beg, dah 20 rengget. dapat 2 matcha atau latte. Ye dok?
+          Benda ni tak praktikal utk tmpt yg ada lori sampah kutip. Ini utk kampung2 yg lori sampah tak kutip, nak hantar ke tong sampah besar jauh yakmat, utk org duduk rumah tinggi yg maleh turun gi buang sampah. Yg rasa macam, baik aku bayar 2 rengget, masalah selesai. Kalo skali turun dapat tlg buang 10 beg, dah 20 rengget. dapat 2 matcha atau kopi. Ye dok?
         </p>
 
         <Link href="/" className="inline-block mt-4 text-primary font-semibold hover:underline">

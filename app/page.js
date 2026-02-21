@@ -93,7 +93,7 @@ function KutipSampahApp() {
                     Welcome, Pembuang Sampah!
                   </h1>
                   <p className="text-gray-600 text-sm mb-4">
-                    Sit back and let them throw it out for you.
+                    Kome buang, bior deme yg kutip. Upoh jgn lupe.
                   </p>
                   {!showForm && (
                     <button
@@ -138,35 +138,36 @@ function KutipSampahApp() {
                   </ol>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-3">Learn more</h2>
-                  <ul className="space-y-2 text-sm">
-                    <li>
-                      <Link href="/about" className="text-primary font-medium hover:underline">
-                        Story
-                      </Link>
-                      <span className="text-gray-500"> — The story behind the app</span>
-                    </li>
-                    <li>
-                      <Link href="/instructions" className="text-primary font-medium hover:underline">
-                        Instructions
-                      </Link>
-                      <span className="text-gray-500"> — How to use as Pembuang or Pengutip</span>
-                    </li>
-                    <li>
-                      <Link href="/solutions" className="text-primary font-medium hover:underline">
-                        Solutions
-                      </Link>
-                      <span className="text-gray-500"> — Who it's for and how we compare</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-primary/5 rounded-2xl p-6 shadow-sm border border-primary/10 mb-6">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-3">Visitors</h2>
-                  <p className="text-gray-600 text-sm">
-                    {visitorCount !== null ? `${visitorCount.toLocaleString()} visitors` : 'Loading...'}
-                  </p>
+                <div className="flex flex-col md:flex-row gap-4 mb-6">
+                  <div className="flex-[3] min-w-0 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h2 className="text-lg font-semibold text-gray-800 mb-3">Learn more</h2>
+                    <ul className="space-y-2 text-sm">
+                      <li>
+                        <Link href="/about" className="text-primary font-medium hover:underline">
+                          Story
+                        </Link>
+                        <span className="text-gray-500"> — Why we make this app</span>
+                      </li>
+                      <li>
+                        <Link href="/instructions" className="text-primary font-medium hover:underline">
+                          Instructions
+                        </Link>
+                        <span className="text-gray-500"> — Skip this if you hate reading instruction</span>
+                      </li>
+                      <li>
+                        <Link href="/solutions" className="text-primary font-medium hover:underline">
+                          Solutions
+                        </Link>
+                        <span className="text-gray-500"> — Only for those who like reading ai generated text</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="flex-[1] min-w-0 bg-primary/5 rounded-2xl p-6 shadow-sm border border-primary/10">
+                    <h2 className="text-lg font-semibold text-gray-800 mb-3">Visitors</h2>
+                    <p className="text-gray-600 text-sm">
+                      {visitorCount !== null ? `${visitorCount.toLocaleString()} visitors` : 'Loading...'}
+                    </p>
+                  </div>
                 </div>
               </div>
               {showForm && (
