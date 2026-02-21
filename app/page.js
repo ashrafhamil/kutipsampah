@@ -131,7 +131,7 @@ function KutipSampahApp() {
                       <Link href="/instructions" className="text-primary font-medium hover:underline">
                         Instructions
                       </Link>
-                      <span className="text-gray-500"> — How to use as requester or collector</span>
+                      <span className="text-gray-500"> — How to use as Pembuang or Pengutip</span>
                     </li>
                     <li>
                       <Link href="/solutions" className="text-primary font-medium hover:underline">
