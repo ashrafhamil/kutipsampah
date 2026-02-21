@@ -23,6 +23,7 @@ function KutipSampahApp() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('request')
   const [showForm, setShowForm] = useState(false)
+  const [requestsFilter, setRequestsFilter] = useState(null) // null = All for My Requests list
 
   const handleJobCreated = (jobId) => {
     Swal.fire({ icon: 'success', title: 'Request sent', text: 'Waiting for collector...' })
@@ -43,6 +44,12 @@ function KutipSampahApp() {
     setSelectedJob(null)
   }
 
+  /** Navigate to My Requests tab with optional status filter (null = All). */
+  const goToMyRequests = (filter) => {
+    setRequestsFilter(filter)
+    setActiveTab('myRequests')
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <UnifiedHeader 
@@ -59,7 +66,7 @@ function KutipSampahApp() {
         <div className={showForm ? 'pb-80' : ''}>
           {activeTab === 'request' ? (
             <>
-              <PembuangStats userId={user.uid} />
+              <PembuangStats userId={user.uid} onStatClick={goToMyRequests} />
               <div className="max-w-md mx-auto px-4 py-8">
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
                   <h1 className="text-2xl font-bold text-gray-800 mb-2">
@@ -148,9 +155,14 @@ function KutipSampahApp() {
             </>
           ) : (
             <>
-              <PembuangStats userId={user.uid} />
+              <PembuangStats userId={user.uid} onStatClick={goToMyRequests} />
               <div className="max-w-md mx-auto px-4 pt-4 pb-8">
-                <PembuangRequestsList userId={user.uid} onJobClick={handleJobClick} />
+                <PembuangRequestsList
+                  userId={user.uid}
+                  onJobClick={handleJobClick}
+                  statusFilter={requestsFilter}
+                  onStatusFilterChange={setRequestsFilter}
+                />
               </div>
             </>
           )}

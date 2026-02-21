@@ -4,18 +4,35 @@ import { useEffect, useState } from 'react'
 import { MapPin, Clock, Package, DollarSign, Inbox } from 'lucide-react'
 import { subscribeToAllJobs } from '@/services/jobService'
 import { JOB_STATUS } from '@/constants/jobConstants'
-import { 
-  sortJobsByStatusAndDate, 
+import {
+  sortJobsByStatusAndDate,
   filterJobsByStatus,
   getStatusLabel,
   getStatusClass,
-  getFilterButtonActiveClass
+  getFilterButtonActiveClass,
 } from '@/utils/jobUtils'
 
-export default function PembuangRequestsList({ userId, onJobClick }) {
+/** Filter options for My Requests, in display order. */
+const REQUEST_FILTER_OPTIONS = [
+  { value: null, label: 'All' },
+  { value: JOB_STATUS.DONE, label: getStatusLabel(JOB_STATUS.DONE) },
+  { value: JOB_STATUS.PENDING, label: getStatusLabel(JOB_STATUS.PENDING) },
+  { value: JOB_STATUS.COLLECTING, label: getStatusLabel(JOB_STATUS.COLLECTING) },
+]
+
+/** Returns the full className for a filter button based on active state. */
+function getFilterButtonClassName(isActive, activeClass) {
+  const base = 'flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-xs transition-all whitespace-nowrap'
+  return isActive ? `${base} ${activeClass}` : `${base} bg-gray-100 text-gray-600 hover:text-gray-800`
+}
+
+export default function PembuangRequestsList({ userId, onJobClick, statusFilter: controlledFilter, onStatusFilterChange }) {
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(true)
-  const [statusFilter, setStatusFilter] = useState(null) // null = all, or JOB_STATUS value
+  const [internalFilter, setInternalFilter] = useState(null)
+  const isControlled = controlledFilter !== undefined
+  const statusFilter = isControlled ? controlledFilter : internalFilter
+  const setStatusFilter = isControlled ? (onStatusFilterChange || (() => {})) : setInternalFilter
 
   useEffect(() => {
     const unsubscribe = subscribeToAllJobs((updatedJobs) => {
@@ -118,46 +135,18 @@ export default function PembuangRequestsList({ userId, onJobClick }) {
       
       {/* Status Filter Buttons */}
       <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
-        <button
-          onClick={() => setStatusFilter(null)}
-          className={`flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
-            statusFilter === null
-              ? getFilterButtonActiveClass(null)
-              : 'bg-gray-100 text-gray-600 hover:text-gray-800'
-          }`}
-        >
-          All
-        </button>
-        <button
-          onClick={() => setStatusFilter(JOB_STATUS.PENDING)}
-          className={`flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
-            statusFilter === JOB_STATUS.PENDING
-              ? getFilterButtonActiveClass(JOB_STATUS.PENDING)
-              : 'bg-gray-100 text-gray-600 hover:text-gray-800'
-          }`}
-        >
-          {getStatusLabel(JOB_STATUS.PENDING)}
-        </button>
-        <button
-          onClick={() => setStatusFilter(JOB_STATUS.COLLECTING)}
-          className={`flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
-            statusFilter === JOB_STATUS.COLLECTING
-              ? getFilterButtonActiveClass(JOB_STATUS.COLLECTING)
-              : 'bg-gray-100 text-gray-600 hover:text-gray-800'
-          }`}
-        >
-          {getStatusLabel(JOB_STATUS.COLLECTING)}
-        </button>
-        <button
-          onClick={() => setStatusFilter(JOB_STATUS.DONE)}
-          className={`flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
-            statusFilter === JOB_STATUS.DONE
-              ? getFilterButtonActiveClass(JOB_STATUS.DONE)
-              : 'bg-gray-100 text-gray-600 hover:text-gray-800'
-          }`}
-        >
-          {getStatusLabel(JOB_STATUS.DONE)}
-        </button>
+        {REQUEST_FILTER_OPTIONS.map((option) => {
+          const isActive = statusFilter === option.value
+          return (
+            <button
+              key={option.value ?? 'all'}
+              onClick={() => setStatusFilter(option.value)}
+              className={getFilterButtonClassName(isActive, getFilterButtonActiveClass(option.value))}
+            >
+              {option.label}
+            </button>
+          )
+        })}
       </div>
 
       {displayJobs.length === 0 ? (
