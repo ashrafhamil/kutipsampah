@@ -4,11 +4,18 @@ import { useEffect, useState } from 'react'
 import { MapPin, Clock, Package, DollarSign, Inbox } from 'lucide-react'
 import { subscribeToAllJobs } from '@/services/jobService'
 import { JOB_STATUS } from '@/constants/jobConstants'
-import { sortJobsByStatusAndDate } from '@/utils/jobUtils'
+import { 
+  sortJobsByStatusAndDate, 
+  filterJobsByStatus,
+  getStatusLabel,
+  getStatusClass,
+  getFilterButtonActiveClass
+} from '@/utils/jobUtils'
 
 export default function PembuangRequestsList({ userId, onJobClick }) {
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(true)
+  const [statusFilter, setStatusFilter] = useState(null) // null = all, or JOB_STATUS value
 
   useEffect(() => {
     const unsubscribe = subscribeToAllJobs((updatedJobs) => {
@@ -64,31 +71,9 @@ export default function PembuangRequestsList({ userId, onJobClick }) {
     return address
   }
 
-  const getStatusLabel = (status) => {
-    switch (status) {
-      case JOB_STATUS.PENDING:
-        return 'Pending'
-      case JOB_STATUS.COLLECTING:
-        return 'Collecting'
-      case JOB_STATUS.DONE:
-        return 'Done'
-      default:
-        return status || '—'
-    }
-  }
-
-  const getStatusClass = (status) => {
-    switch (status) {
-      case JOB_STATUS.PENDING:
-        return 'bg-amber-100 text-amber-700'
-      case JOB_STATUS.COLLECTING:
-        return 'bg-blue-100 text-blue-700'
-      case JOB_STATUS.DONE:
-        return 'bg-green-100 text-green-700'
-      default:
-        return 'bg-gray-100 text-gray-700'
-    }
-  }
+  // Filter and sort jobs
+  const filteredJobs = filterJobsByStatus(jobs, statusFilter)
+  const displayJobs = sortJobsByStatusAndDate(filteredJobs)
 
   if (loading) {
     return (
@@ -126,9 +111,67 @@ export default function PembuangRequestsList({ userId, onJobClick }) {
 
   return (
     <div className="max-w-md mx-auto px-4 pb-8">
-      <h2 className="text-lg font-bold text-gray-800 mb-3">My Requests</h2>
-      <div className="space-y-3">
-        {jobs.map((job) => (
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-lg font-bold text-gray-800">My Requests</h2>
+        <span className="text-sm text-gray-500">{displayJobs.length} {displayJobs.length === 1 ? 'job' : 'jobs'}</span>
+      </div>
+      
+      {/* Status Filter Buttons */}
+      <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+        <button
+          onClick={() => setStatusFilter(null)}
+          className={`flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
+            statusFilter === null
+              ? getFilterButtonActiveClass(null)
+              : 'bg-gray-100 text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          All
+        </button>
+        <button
+          onClick={() => setStatusFilter(JOB_STATUS.PENDING)}
+          className={`flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
+            statusFilter === JOB_STATUS.PENDING
+              ? getFilterButtonActiveClass(JOB_STATUS.PENDING)
+              : 'bg-gray-100 text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          {getStatusLabel(JOB_STATUS.PENDING)}
+        </button>
+        <button
+          onClick={() => setStatusFilter(JOB_STATUS.COLLECTING)}
+          className={`flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
+            statusFilter === JOB_STATUS.COLLECTING
+              ? getFilterButtonActiveClass(JOB_STATUS.COLLECTING)
+              : 'bg-gray-100 text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          {getStatusLabel(JOB_STATUS.COLLECTING)}
+        </button>
+        <button
+          onClick={() => setStatusFilter(JOB_STATUS.DONE)}
+          className={`flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-xs transition-all whitespace-nowrap ${
+            statusFilter === JOB_STATUS.DONE
+              ? getFilterButtonActiveClass(JOB_STATUS.DONE)
+              : 'bg-gray-100 text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          {getStatusLabel(JOB_STATUS.DONE)}
+        </button>
+      </div>
+
+      {displayJobs.length === 0 ? (
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center">
+          <Inbox className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-600 text-sm">
+            {statusFilter 
+              ? `No ${getStatusLabel(statusFilter).toLowerCase()} requests found.`
+              : "You haven't submitted any requests yet."}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+        {displayJobs.map((job) => (
           <div
             key={job.id}
             onClick={() => onJobClick(job)}
@@ -165,7 +208,8 @@ export default function PembuangRequestsList({ userId, onJobClick }) {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

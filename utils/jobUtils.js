@@ -59,6 +59,71 @@ export const compareTimestampsDesc = (timestampA, timestampB) => {
 }
 
 /**
+ * Filters jobs by status
+ * @param {Array} jobs - Array of job objects
+ * @param {string|null} status - Status to filter by (null = all jobs)
+ * @returns {Array} Filtered array of jobs
+ */
+export const filterJobsByStatus = (jobs, status) => {
+  if (!status) return jobs
+  return jobs.filter(job => job.status === status)
+}
+
+/**
+ * Gets human-readable label for job status
+ * @param {string} status - Job status
+ * @returns {string} Human-readable label
+ */
+export const getStatusLabel = (status) => {
+  switch (status) {
+    case JOB_STATUS.PENDING:
+      return 'Pending'
+    case JOB_STATUS.COLLECTING:
+      return 'Collecting'
+    case JOB_STATUS.DONE:
+      return 'Done'
+    default:
+      return status || '—'
+  }
+}
+
+/**
+ * Gets CSS classes for status badge
+ * @param {string} status - Job status
+ * @returns {string} CSS class string
+ */
+export const getStatusClass = (status) => {
+  switch (status) {
+    case JOB_STATUS.PENDING:
+      return 'bg-amber-100 text-amber-700'
+    case JOB_STATUS.COLLECTING:
+      return 'bg-blue-100 text-blue-700'
+    case JOB_STATUS.DONE:
+      return 'bg-green-100 text-green-700'
+    default:
+      return 'bg-gray-100 text-gray-700'
+  }
+}
+
+/**
+ * Gets button background color class for active filter state
+ * @param {string|null} status - Job status (null for "All" button)
+ * @returns {string} CSS class string for active button
+ */
+export const getFilterButtonActiveClass = (status) => {
+  switch (status) {
+    case JOB_STATUS.PENDING:
+      return 'bg-amber-100 text-amber-700 shadow-md'
+    case JOB_STATUS.COLLECTING:
+      return 'bg-blue-100 text-blue-700 shadow-md'
+    case JOB_STATUS.DONE:
+      return 'bg-green-100 text-green-700 shadow-md'
+    default:
+      return 'bg-primary text-white shadow-md'
+  }
+}
+
+/**
  * Sorts jobs by status priority first, then by creation date (newest first)
  * @param {Array} jobs - Array of job objects
  * @returns {Array} Sorted array of jobs
